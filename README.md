@@ -1,16 +1,72 @@
-# React + Vite
+# SocialSpark
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SocialSpark is a modern social media web application that allows users to connect, share moments, and interact with others through posts, likes, comments, and stories. The platform is designed with a clean, responsive interface inspired by popular social networks.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* User authentication (Sign Up / Login)
+* User profile with avatar, bio, and personal information
+* Create posts with images and captions
+* Like and comment on posts
+* Follow and unfollow users
+* Stories that automatically disappear after 24 hours
+* News feed showing posts from followed users
+* Responsive design for desktop and mobile
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
+* React
+* Vite
+* Tailwind CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+
+* Supabase (Authentication, Database, Storage)
+
+## Database Structure
+
+The application uses the following tables:
+
+* profiles – stores user profile information
+* posts – stores user posts
+* likes – tracks post likes
+* comments – stores comments on posts
+* follows – manages follower relationships
+* stories – stores temporary stories
+
+Row Level Security (RLS) policies are enabled to protect user data and ensure users can only modify their own content.
+
+## Storage Buckets
+
+Supabase storage is used for media uploads.
+
+* **posts** → stores uploaded post images
+* **avatars** → stores user profile pictures
+
+
+
+## Project Structure
+
+src/
+
+* components → reusable UI components
+* pages → application pages
+* lib → Supabase client configuration
+* assets → images and static files
+
+## Future Improvements
+
+* Real-time chat
+* Notifications system
+* Video posts / reels
+* Advanced search functionality
+* Mobile app version
+
+## Author
+
+SocialSpark was developed as a full-stack social media application using React and Supabase.
+
+## License
+This project is intended for educational and development purposes.
