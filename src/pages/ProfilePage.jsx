@@ -80,10 +80,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => toggleFollow()}
                   disabled={isPending}
-                  className={`sm:ml-auto flex items-center gap-1.5 px-5 py-2 rounded-lg font-semibold text-sm transition-colors duration-200
-                    ${isFollowing
-                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
-                      : 'bg-primary-500 text-white hover:bg-primary-600'
+                  className={`sm:ml-auto flex items-center gap-1.5 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${isFollowing ? 'btn-following' : 'btn-follow'
                     }`}
                 >
                   {isPending

@@ -1,6 +1,6 @@
 export default function Avatar({ src, alt = '', size = 'md', ring = false, className = '' }) {
   const sizes = {
-    xs: 'w-7 h-7 text-xs',
+    xs: 'w-7 h-7 text-[10px]',
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
     lg: 'w-12 h-12 text-base',
@@ -16,12 +16,14 @@ export default function Avatar({ src, alt = '', size = 'md', ring = false, class
     <div
       className={`
         relative flex-shrink-0 rounded-full overflow-hidden
-        bg-gray-700
-        flex items-center justify-center font-medium text-white
+        flex items-center justify-center font-semibold text-white
         ${sizes[size] || sizes.md}
-        ${ring ? 'ring-2 ring-offset-2 ring-primary-400' : ''}
+        ${ring ? 'ring-2 ring-offset-2 ring-blue-400' : ''}
         ${className}
       `}
+      style={!src ? {
+        background: 'linear-gradient(135deg, #3B82F6 0%, #7C3AED 100%)'
+      } : undefined}
     >
       {src ? (
         <img src={src} alt={alt} className="w-full h-full object-cover" />

@@ -1,27 +1,27 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useState } from 'react'
 import { usePosts } from '../hooks/usePosts'
 import PostCard from '../components/post/PostCard'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import PostCreateModal from '../components/post/PostCreateModal'
-import { useState } from 'react'
-import { PlusCircle, Rss } from 'lucide-react'
+import { PlusCircle, Rss, Image, Video, MapPin } from 'lucide-react'
+import Avatar from '../components/ui/Avatar'
 
 // Skeleton loader
 function PostSkeleton() {
   return (
-    <div className="card overflow-hidden animate-pulse">
+    <div className="post-card animate-pulse">
       <div className="p-4 flex items-center gap-3">
-        <div className="skeleton w-11 h-11 rounded-full" />
+        <div className="skeleton w-10 h-10 rounded-full" />
         <div className="space-y-2 flex-1">
           <div className="skeleton h-3 w-32 rounded" />
           <div className="skeleton h-2 w-20 rounded" />
         </div>
       </div>
-      <div className="skeleton w-full h-48" />
+      <div className="skeleton w-full h-48" style={{ borderRadius: 0 }} />
       <div className="p-4 space-y-2">
         <div className="skeleton h-3 w-full rounded" />
-        <div className="skeleton h-3 w-3/4 rounded" />
+        <div className="skeleton h-3 w-1/2 rounded" />
       </div>
     </div>
   )
@@ -55,26 +55,41 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      {/* Create post prompt */}
-      <div className="card p-3.5">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="w-full flex items-center gap-3 text-left"
-        >
-          <div className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-400 transition-colors cursor-text">
+      {/* Create post box */}
+      <div className="card p-4">
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={profile?.avatar_url}
+            alt={profile?.full_name || profile?.username}
+            size="md"
+          />
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-400 text-left transition-colors cursor-text"
+          >
             What's on your mind?
-          </div>
-          <div className="btn-primary py-2 px-3.5 text-sm flex-shrink-0">
-            <PlusCircle size={15} />
-            <span className="hidden sm:inline">Post</span>
-          </div>
-        </button>
+          </button>
+        </div>
+        <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100">
+          <button onClick={() => setShowCreate(true)} className="btn-ghost py-1.5 text-gray-500 flex-1 justify-center text-sm">
+            <Image size={16} strokeWidth={1.8} className="text-blue-500" />
+            Photo
+          </button>
+          <button onClick={() => setShowCreate(true)} className="btn-ghost py-1.5 text-gray-500 flex-1 justify-center text-sm">
+            <Video size={16} strokeWidth={1.8} className="text-red-500" />
+            Video
+          </button>
+          <button onClick={() => setShowCreate(true)} className="btn-ghost py-1.5 text-gray-500 flex-1 justify-center text-sm">
+            <MapPin size={16} strokeWidth={1.8} className="text-green-500" />
+            Location
+          </button>
+        </div>
       </div>
 
       {/* Feed label */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-3">
-        <Rss size={15} className="text-gray-500" />
-        <h2 className="font-semibold text-gray-800 text-sm">Your Feed</h2>
+      <div className="flex items-center gap-2 px-0.5">
+        <Rss size={15} className="text-blue-500" />
+        <h2 className="font-bold text-gray-900 text-sm">Recent Posts</h2>
       </div>
 
       {/* Loading skeleton */}
