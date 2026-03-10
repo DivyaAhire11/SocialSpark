@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, User, AtSign, Sparkles } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, AtSign, LayoutGrid } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Spinner from '../components/ui/Spinner'
 
@@ -56,154 +56,151 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left decorative panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-500 via-accent-500 to-pink-500 relative overflow-hidden flex-col items-center justify-center p-12">
-        <div className="absolute inset-0 opacity-20">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-white/30"
-              style={{
-                width: `${60 + i * 40}px`,
-                height: `${60 + i * 40}px`,
-                top: `${10 + i * 12}%`,
-                left: `${5 + i * 11}%`,
-                animationDelay: `${i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
-        <div className="relative z-10 text-center text-white">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Sparkles size={40} />
+    <div className="min-h-screen flex" style={{ backgroundColor: '#F9FAFB' }}>
+
+      {/* Left panel */}
+      <div className="hidden lg:flex lg:w-2/5 bg-gray-900 relative overflow-hidden flex-col items-start justify-between p-12">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }} />
+
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
+            <LayoutGrid size={18} className="text-white" />
           </div>
-          <h1 className="text-4xl font-extrabold mb-4">SocialSpark</h1>
-          <p className="text-xl text-white/90 font-light max-w-xs">
-            Connect with friends, share your moments, discover inspiring stories.
+          <span className="text-xl font-bold text-white tracking-tight">SocialSpark</span>
+        </div>
+
+        {/* Testimonial / tagline area */}
+        <div className="relative z-10">
+          <p className="text-2xl font-bold text-white leading-snug max-w-xs mb-4">
+            Connect. Share. Inspire.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-4">
+          <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+            A professional social platform to share moments, grow your network, and stay connected with people that matter.
+          </p>
+          <div className="mt-8 flex gap-2">
             {['Share', 'Connect', 'Inspire'].map(word => (
-              <div key={word} className="bg-white/20 backdrop-blur rounded-2xl py-3 px-4 text-center">
-                <p className="font-semibold text-sm">{word}</p>
+              <div key={word} className="bg-white/10 border border-white/10 rounded-lg py-1.5 px-3">
+                <p className="font-medium text-white text-xs">{word}</p>
               </div>
             ))}
           </div>
         </div>
+
+        <p className="relative z-10 text-xs text-gray-600">© 2026 SocialSpark</p>
       </div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-sm">
+
           {/* Mobile logo */}
-          <div className="lg:hidden text-center mb-8">
-            <span className="text-3xl font-extrabold gradient-text">SocialSpark</span>
+          <div className="lg:hidden flex items-center gap-2 justify-center mb-8">
+            <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
+              <LayoutGrid size={16} className="text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900">SocialSpark</span>
           </div>
 
-          <div className="text-center mb-8">
+          {/* Header */}
+          <div className="mb-7">
             <h2 className="text-2xl font-bold text-gray-900">
-              {isLogin ? 'Welcome back! 👋' : 'Join SocialSpark ✨'}
+              {isLogin ? 'Sign in' : 'Create account'}
             </h2>
-            <p className="text-gray-400 mt-1 text-sm">
-              {isLogin ? 'Sign in to continue your journey' : 'Create your account today'}
+            <p className="text-sm text-gray-500 mt-1">
+              {isLogin ? 'Welcome back. Enter your details.' : 'Fill in your information to get started.'}
             </p>
           </div>
 
-          {/* Toggle tabs */}
-          <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+          {/* Tab switcher */}
+          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
             <button
               onClick={() => isLogin || switchMode()}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${isLogin ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500'}`}
+              className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${isLogin ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
-              Sign In
+              Sign in
             </button>
             <button
               onClick={() => !isLogin || switchMode()}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${!isLogin ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500'}`}
+              className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${!isLogin ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
-              Sign Up
+              Sign up
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
             {!isLogin && (
               <>
                 <div className="relative">
-                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={form.fullName}
-                    onChange={handleChange}
-                    placeholder="Full name"
-                    className="input-field pl-10"
-                  />
+                  <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" name="fullName" value={form.fullName}
+                    onChange={handleChange} placeholder="Full name"
+                    className="input-field pl-10" />
                 </div>
                 <div className="relative">
-                  <AtSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    name="username"
-                    value={form.username}
-                    onChange={handleChange}
-                    placeholder="Username"
-                    className="input-field pl-10"
-                    required
-                  />
+                  <AtSign size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" name="username" value={form.username}
+                    onChange={handleChange} placeholder="Username"
+                    className="input-field pl-10" required />
                 </div>
               </>
             )}
             <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="input-field pl-10"
-                required
-              />
+              <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input type="email" name="email" value={form.email}
+                onChange={handleChange} placeholder="Email address"
+                className="input-field pl-10" required />
             </div>
             <div className="relative">
-              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type={showPass ? 'text' : 'password'}
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Password"
-                className="input-field pl-10 pr-10"
-                required
+                name="password" value={form.password}
+                onChange={handleChange} placeholder="Password"
+                className="input-field pl-10 pr-10" required
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl border border-red-100">
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3.5 py-2.5 rounded-lg">
                 {error}
               </div>
             )}
             {success && (
-              <div className="bg-green-50 text-green-600 text-sm px-4 py-3 rounded-xl border border-green-100">
+              <div className="bg-green-50 border border-green-200 text-green-600 text-sm px-3.5 py-2.5 rounded-lg">
                 {success}
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
-              {loading ? <><Spinner size="sm" /> {isLogin ? 'Signing in...' : 'Creating account...'}</> : (isLogin ? 'Sign In' : 'Create Account')}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-2.5 text-sm mt-1"
+            >
+              {loading
+                ? <><Spinner size="sm" /> {isLogin ? 'Signing in...' : 'Creating account...'}</>
+                : isLogin ? 'Sign in' : 'Create account'
+              }
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center text-sm text-gray-500 mt-5">
             {isLogin ? "Don't have an account? " : 'Already have an account? '}
-            <button onClick={switchMode} className="text-primary-600 font-semibold hover:underline">
+            <button onClick={switchMode} className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
           </p>

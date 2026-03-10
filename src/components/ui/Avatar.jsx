@@ -1,11 +1,11 @@
 export default function Avatar({ src, alt = '', size = 'md', ring = false, className = '' }) {
   const sizes = {
     xs: 'w-7 h-7 text-xs',
-    sm: 'w-9 h-9 text-sm',
-    md: 'w-11 h-11 text-base',
-    lg: 'w-14 h-14 text-lg',
-    xl: 'w-20 h-20 text-2xl',
-    '2xl': 'w-28 h-28 text-3xl',
+    sm: 'w-8 h-8 text-xs',
+    md: 'w-10 h-10 text-sm',
+    lg: 'w-12 h-12 text-base',
+    xl: 'w-16 h-16 text-xl',
+    '2xl': 'w-24 h-24 text-2xl',
   }
 
   const initials = alt
@@ -16,8 +16,8 @@ export default function Avatar({ src, alt = '', size = 'md', ring = false, class
     <div
       className={`
         relative flex-shrink-0 rounded-full overflow-hidden
-        bg-gradient-to-br from-primary-400 to-accent-500
-        flex items-center justify-center font-semibold text-white
+        bg-gray-700
+        flex items-center justify-center font-medium text-white
         ${sizes[size] || sizes.md}
         ${ring ? 'ring-2 ring-offset-2 ring-primary-400' : ''}
         ${className}

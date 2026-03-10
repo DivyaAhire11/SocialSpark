@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MoreHorizontal, MessageCircle, Share2, Bookmark } from 'lucide-react'
+import { MoreHorizontal, MessageCircle, Share2, Bookmark, Heart } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import Avatar from '../ui/Avatar'
 import LikeButton from './LikeButton'
@@ -28,21 +28,21 @@ export default function PostCard({ post }) {
   }
 
   return (
-    <div className="card overflow-hidden animate-fade-in hover:shadow-card-hover transition-shadow duration-200">
+    <div className="post-card animate-fade-in">
+
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <Link to={`/profile/${post.user_id}`} className="flex items-center gap-3 group">
           <Avatar
             src={profile?.avatar_url}
             alt={profile?.full_name || profile?.username}
             size="md"
-            ring
           />
           <div>
-            <p className="font-semibold text-gray-900 text-sm group-hover:text-primary-600 transition-colors">
+            <p className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
               {profile?.full_name || profile?.username}
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 mt-0.5">
               @{profile?.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
             </p>
           </div>
@@ -52,17 +52,18 @@ export default function PostCard({ post }) {
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
             >
-              <MoreHorizontal size={18} />
+              <MoreHorizontal size={17} />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-9 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10 w-36 animate-fade-in">
+              <div className="absolute right-0 top-10 bg-white rounded-xl border border-gray-200 py-1 z-10 w-36 animate-fade-in"
+                style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
                 <button
                   onClick={handleDelete}
-                  className="w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 text-left font-medium transition-colors"
+                  className="w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 text-left transition-colors"
                 >
-                  Delete Post
+                  Delete post
                 </button>
               </div>
             )}
@@ -73,47 +74,57 @@ export default function PostCard({ post }) {
       {/* Caption */}
       {post.caption && (
         <div className="px-4 pb-3">
-          <p className="text-sm text-gray-700 leading-relaxed">{post.caption}</p>
+          <p className="text-sm text-gray-800 leading-relaxed">{post.caption}</p>
         </div>
       )}
 
       {/* Image */}
       {post.image_url && (
-        <div className="w-full bg-gray-100 aspect-square sm:aspect-video overflow-hidden">
+        <div className="w-full overflow-hidden mx-0" style={{ borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
           <img
             src={post.image_url}
             alt={post.caption || 'Post image'}
-            className="w-full h-full object-cover"
+            className="w-full object-cover max-h-96"
             loading="lazy"
           />
         </div>
       )}
 
-      {/* Actions */}
-      <div className="p-4">
+      {/* Action bar */}
+      <div className="px-4 py-3">
+        {/* Like/comment counts summary */}
+        {(likeCount > 0 || commentCount > 0) && (
+          <div className="flex items-center justify-between text-xs text-gray-400 mb-2 pb-2 border-b border-gray-100">
+            <span>{likeCount > 0 ? `${likeCount} like${likeCount !== 1 ? 's' : ''}` : ''}</span>
+            <span>{commentCount > 0 ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}` : ''}</span>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <LikeButton postId={post.id} initialCount={likeCount} />
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-primary-600 transition-all text-sm font-medium"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors text-sm font-medium"
             >
-              <MessageCircle size={18} />
-              <span>{commentCount}</span>
+              <MessageCircle size={17} strokeWidth={1.8} />
+              <span>Comment</span>
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-primary-600 transition-all text-sm font-medium">
-              <Share2 size={18} />
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors text-sm font-medium">
+              <Share2 size={17} strokeWidth={1.8} />
+              <span>Share</span>
             </button>
           </div>
           <button
             onClick={() => setSaved(!saved)}
-            className={`p-2 rounded-xl transition-all ${saved ? 'text-primary-600 bg-primary-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${saved ? 'text-blue-500 bg-blue-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+              }`}
           >
-            <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
+            <Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />
           </button>
         </div>
 
-        {/* Comments Section */}
+        {/* Comments section */}
         {showComments && (
           <div className="mt-3 pt-3 border-t border-gray-100 animate-fade-in">
             <CommentSection postId={post.id} />

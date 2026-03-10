@@ -60,19 +60,21 @@ export default function PostCreateModal({ isOpen, onClose }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Post">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Create post">
       <form onSubmit={handleSubmit} className="space-y-4">
+
         {/* Author */}
         <div className="flex items-center gap-3">
           <Avatar
             src={profile?.avatar_url}
             alt={profile?.full_name || profile?.username}
             size="md"
-            ring
           />
           <div>
             <p className="font-semibold text-sm text-gray-900">{profile?.full_name || profile?.username}</p>
-            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Public</span>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md font-medium">
+              Public
+            </span>
           </div>
         </div>
 
@@ -82,33 +84,33 @@ export default function PostCreateModal({ isOpen, onClose }) {
           onChange={e => setCaption(e.target.value)}
           placeholder="What's on your mind?"
           rows={3}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none
-                     focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent
-                     placeholder:text-gray-400 transition-all"
+          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm resize-none
+                     focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300
+                     placeholder:text-gray-400 text-gray-900 leading-relaxed"
         />
 
         {/* Image preview */}
         {preview && (
-          <div className="relative rounded-xl overflow-hidden border border-gray-200">
-            <img src={preview} alt="Preview" className="w-full max-h-64 object-cover" />
+          <div className="relative rounded-lg overflow-hidden border border-gray-200">
+            <img src={preview} alt="Preview" className="w-full max-h-56 object-cover" />
             <button
               type="button"
               onClick={removeImage}
-              className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-black/80 transition-colors"
+              className="absolute top-2 right-2 bg-gray-900/70 text-white p-1.5 rounded-lg hover:bg-gray-900 transition-colors"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+          <p className="text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">{error}</p>
         )}
 
-        {/* Footer actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="flex items-center gap-2">
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+          <div>
             <input
               ref={fileRef}
               type="file"
@@ -119,27 +121,24 @@ export default function PostCreateModal({ isOpen, onClose }) {
             />
             <label
               htmlFor="post-image-upload"
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 cursor-pointer px-3 py-2 rounded-xl hover:bg-primary-50 transition-all font-medium"
+              className="btn-ghost py-1.5 px-2 text-sm text-gray-500 cursor-pointer"
             >
-              <ImagePlus size={18} />
+              <ImagePlus size={16} />
               <span>Photo</span>
             </label>
           </div>
 
           <div className="flex gap-2">
-            <button type="button" onClick={handleClose} className="btn-secondary text-sm py-2">
+            <button type="button" onClick={handleClose} className="btn-secondary py-1.5">
               Cancel
             </button>
             <button
               type="submit"
               disabled={createPost.isPending || (!caption.trim() && !imageFile)}
-              className="btn-primary text-sm py-2 flex items-center gap-2"
+              className="btn-primary py-1.5"
             >
               {createPost.isPending ? (
-                <>
-                  <Spinner size="sm" />
-                  Posting...
-                </>
+                <><Spinner size="sm" /> Posting...</>
               ) : 'Post'}
             </button>
           </div>

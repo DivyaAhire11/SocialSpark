@@ -5,28 +5,31 @@ import Navbar from './Navbar'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#F9FAFB' }}>
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-8">
-        <div className="flex gap-6">
+      {/* pt-14 matches navbar h-14 (56px). Extra pt-5 adds breathing room below navbar. */}
+      <div className="max-w-7xl mx-auto px-4 pt-14">
+        <div className="flex gap-5 pt-5">
+
           {/* Left Sidebar */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24">
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-[72px]">
               <LeftSidebar />
             </div>
           </aside>
 
           {/* Center Feed */}
-          <main className="flex-1 min-w-0 max-w-xl mx-auto lg:mx-0">
+          <main className="flex-1 min-w-0 max-w-2xl mx-auto lg:mx-0 pb-8">
             <Outlet />
           </main>
 
           {/* Right Sidebar */}
-          <aside className="hidden xl:block w-80 flex-shrink-0">
-            <div className="sticky top-24">
+          <aside className="hidden xl:block w-72 flex-shrink-0">
+            <div className="sticky top-[72px]">
               <RightSidebar />
             </div>
           </aside>
+
         </div>
       </div>
     </div>

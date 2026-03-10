@@ -17,18 +17,18 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-gray-900/40"
         onClick={onClose}
       />
-      {/* Modal panel */}
-      <div className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto`}>
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+      {/* Panel */}
+      <div className={`relative w-full ${maxWidth} bg-white rounded-xl shadow-modal animate-slide-up max-h-[90vh] overflow-y-auto border border-gray-200`}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+          <h2 className="text-base font-semibold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="btn-ghost p-1.5 text-gray-400"
           >
-            <X size={18} className="text-gray-500" />
+            <X size={17} />
           </button>
         </div>
         <div className="p-5">{children}</div>

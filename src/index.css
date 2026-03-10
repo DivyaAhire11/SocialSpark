@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,15 +10,18 @@
   }
 
   body {
-    @apply font-sans bg-gray-50 text-gray-900 antialiased;
+    @apply font-sans antialiased;
+    background-color: #F0F2F5;
+    color: #111827;
+    font-size: 14px;
   }
 
   ::-webkit-scrollbar {
-    @apply w-1.5;
+    width: 5px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -31,50 +34,127 @@
 }
 
 @layer components {
+
+  /* ─── Cards ──────────────────────────── */
   .card {
-    @apply bg-white rounded-2xl shadow-card border border-gray-100;
+    @apply bg-white border border-gray-200 rounded-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
 
+  .card-hover {
+    @apply transition-shadow duration-200;
+  }
+
+  .card-hover:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Feed post cards — very slight blue tint */
+  .post-card {
+    @apply bg-white border border-gray-200 rounded-xl overflow-hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background-color: #FAFBFF;
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
+  }
+
+  /* ─── Buttons ─────────────────────────── */
   .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 py-2 rounded-xl
-           transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 select-none;
+    background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.35);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4);
+    transform: translateY(-0.5px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.3);
   }
 
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl
-           transition-all duration-200 active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium border border-gray-300 px-4 py-2 rounded-lg transition-colors duration-150 focus:outline-none;
+  }
+
+  .btn-secondary:active {
+    @apply bg-gray-100;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 text-sm font-medium px-3 py-2 rounded-lg transition-colors duration-150;
   }
 
   .btn-outline {
-    @apply border border-primary-500 text-primary-500 hover:bg-primary-50 font-semibold px-4 py-2 rounded-xl
-           transition-all duration-200 active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 border border-primary-500 text-primary-600 hover:bg-primary-50 text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200;
   }
 
+  /* ─── Follow button variant ───────────── */
+  .btn-follow {
+    @apply inline-flex items-center justify-center gap-1 text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all duration-150;
+    background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-follow:hover {
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    transform: translateY(-0.5px);
+  }
+
+  .btn-following {
+    @apply inline-flex items-center justify-center gap-1 text-xs font-medium px-3.5 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors duration-150;
+  }
+
+  /* ─── Inputs ─────────────────────────── */
   .input-field {
-    @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm
-           focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent
-           placeholder:text-gray-400 transition-all duration-200;
+    @apply w-full bg-white border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200;
   }
 
+  /* ─── Nav links ──────────────────────── */
   .nav-link {
-    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 font-medium
-           hover:bg-primary-50 hover:text-primary-600 transition-all duration-200 cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 text-sm font-medium hover:bg-gray-100 hover:text-gray-900 transition-all duration-150 cursor-pointer;
   }
 
   .nav-link.active {
-    @apply bg-primary-50 text-primary-600;
+    @apply text-white font-semibold;
+    background-color: #111827;
   }
 
-  .story-ring {
-    @apply ring-2 ring-offset-2 ring-primary-400;
+  .nav-link.active svg {
+    @apply text-white;
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-500 to-accent-500 bg-clip-text text-transparent;
+  /* ─── Badge ──────────────────────────── */
+  .badge {
+    @apply inline-flex items-center justify-center text-xs font-bold bg-red-500 text-white min-w-[18px] h-[18px] px-1 rounded-full;
   }
 
+  /* ─── Skeleton ───────────────────────── */
   .skeleton {
-    @apply bg-gray-200 animate-pulse rounded;
+    @apply bg-gray-100 animate-pulse rounded-lg;
+  }
+
+  /* ─── Story ring ─────────────────────── */
+  .story-ring {
+    background: linear-gradient(135deg, #F43F5E, #8B5CF6, #2563EB);
+    padding: 2px;
+    border-radius: 9999px;
+  }
+
+  .story-ring-inner {
+    @apply bg-white rounded-full;
+    padding: 2px;
+  }
+
+  /* ─── Section heading ────────────────── */
+  .section-heading {
+    @apply text-sm font-bold text-gray-900 mb-3;
   }
 }
 
@@ -82,6 +162,7 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

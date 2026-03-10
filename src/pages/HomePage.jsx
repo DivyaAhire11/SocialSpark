@@ -56,25 +56,25 @@ export default function HomePage() {
   return (
     <div className="space-y-4">
       {/* Create post prompt */}
-      <div className="card p-4">
+      <div className="card p-3.5">
         <button
           onClick={() => setShowCreate(true)}
-          className="w-full flex items-center gap-3 text-left group"
+          className="w-full flex items-center gap-3 text-left"
         >
-          <div className="flex-1 bg-gray-100 hover:bg-gray-200 rounded-xl px-4 py-3 text-sm text-gray-400 transition-colors cursor-text">
+          <div className="flex-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-400 transition-colors cursor-text">
             What's on your mind?
           </div>
-          <div className="btn-primary flex items-center gap-1.5 text-sm py-2.5 px-4 flex-shrink-0">
-            <PlusCircle size={16} />
-            Post
+          <div className="btn-primary py-2 px-3.5 text-sm flex-shrink-0">
+            <PlusCircle size={15} />
+            <span className="hidden sm:inline">Post</span>
           </div>
         </button>
       </div>
 
       {/* Feed label */}
-      <div className="flex items-center gap-2 px-1">
-        <Rss size={18} className="text-primary-500" />
-        <h2 className="font-bold text-gray-900">Your Feed</h2>
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-3">
+        <Rss size={15} className="text-gray-500" />
+        <h2 className="font-semibold text-gray-800 text-sm">Your Feed</h2>
       </div>
 
       {/* Loading skeleton */}
@@ -92,16 +92,17 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Posts */}
+      {/* Empty state */}
       {!isLoading && posts.length === 0 && !error && (
-        <div className="card p-10 text-center">
-          <div className="text-5xl mb-4">📸</div>
-          <h3 className="font-bold text-gray-800 text-lg">No posts yet!</h3>
-          <p className="text-gray-400 text-sm mt-2 mb-5">
-            Follow some friends or create your first post to see content here.
+        <div className="card p-12 text-center">
+          <Rss size={28} className="mx-auto text-gray-300 mb-3" />
+          <h3 className="font-semibold text-gray-700 text-base">Your feed is empty</h3>
+          <p className="text-gray-400 text-sm mt-1.5 mb-5 max-w-xs mx-auto">
+            Follow people or create your first post to see content here.
           </p>
           <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto">
-            Create First Post
+            <PlusCircle size={15} />
+            Create first post
           </button>
         </div>
       )}
