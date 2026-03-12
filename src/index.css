@@ -49,15 +49,18 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  /* Feed post cards — very slight blue tint */
+  /* Feed post cards — pristine white with soft shadow */
   .post-card {
-    @apply bg-white border border-gray-200 rounded-xl overflow-hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    background-color: #FAFBFF;
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
   }
 
   .post-card:hover {
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   }
 
   /* ─── Buttons ─────────────────────────── */

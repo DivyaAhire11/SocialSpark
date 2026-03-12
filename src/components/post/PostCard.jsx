@@ -19,6 +19,9 @@ export default function PostCard({ post }) {
   const isOwner = user?.id === post.user_id
   const likeCount = post.likes?.length ?? 0
   const commentCount = post.comments?.length ?? 0
+  
+  // Get first 2 comments for preview
+  const previewComments = post.comments?.slice(0, 2) || []
 
   const handleDelete = async () => {
     if (window.confirm('Delete this post?')) {
@@ -28,10 +31,9 @@ export default function PostCard({ post }) {
   }
 
   return (
-    <div className="post-card animate-fade-in">
-
+    <div className="post-card p-4 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-3">
+      <div className="flex items-center justify-between pb-3">
         <Link to={`/profile/${post.user_id}`} className="flex items-center gap-3 group">
           <Avatar
             src={profile?.avatar_url}
@@ -73,25 +75,25 @@ export default function PostCard({ post }) {
 
       {/* Caption */}
       {post.caption && (
-        <div className="px-4 pb-3">
+        <div className="pb-3">
           <p className="text-sm text-gray-800 leading-relaxed">{post.caption}</p>
         </div>
       )}
 
       {/* Image */}
       {post.image_url && (
-        <div className="w-full overflow-hidden mx-0" style={{ borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
+        <div className="w-full mb-3">
           <img
             src={post.image_url}
             alt={post.caption || 'Post image'}
-            className="w-full object-cover max-h-96"
+            className="w-full object-cover max-h-96 rounded-lg border border-gray-100"
             loading="lazy"
           />
         </div>
       )}
 
-      {/* Action bar */}
-      <div className="px-4 py-3">
+      {/* Action bar area */}
+      <div>
         {/* Like/comment counts summary */}
         {(likeCount > 0 || commentCount > 0) && (
           <div className="flex items-center justify-between text-xs text-gray-400 mb-2 pb-2 border-b border-gray-100">
@@ -100,7 +102,8 @@ export default function PostCard({ post }) {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-0.5">
             <LikeButton postId={post.id} initialCount={likeCount} />
             <button
@@ -124,7 +127,29 @@ export default function PostCard({ post }) {
           </button>
         </div>
 
-        {/* Comments section */}
+        {/* Inline Comments Preview (Always visible unless full section is open) */}
+        {!showComments && previewComments.length > 0 && (
+          <div className="mt-1 space-y-1">
+            {previewComments.map(comment => (
+              <div key={comment.id} className="text-sm">
+                <span className="font-semibold text-gray-900 mr-2">
+                  {comment.profiles?.username || 'User'}
+                </span>
+                <span className="text-gray-700">{comment.content}</span>
+              </div>
+            ))}
+            {commentCount > 2 && (
+              <button 
+                onClick={() => setShowComments(true)}
+                className="text-sm text-gray-500 hover:text-gray-700 mt-1 font-medium"
+              >
+                View all {commentCount} comments
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Full Comments section */}
         {showComments && (
           <div className="mt-3 pt-3 border-t border-gray-100 animate-fade-in">
             <CommentSection postId={post.id} />

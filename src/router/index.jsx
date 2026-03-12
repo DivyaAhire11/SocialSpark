@@ -3,6 +3,7 @@ import ProtectedRoute from './ProtectedRoute'
 import AuthPage from '../pages/AuthPage'
 import HomePage from '../pages/HomePage'
 import ProfilePage from '../pages/ProfilePage'
+import ExplorePage from '../pages/ExplorePage'
 import AppLayout from '../components/layout/AppLayout'
 import { useAuth } from '../context/AuthContext'
 
@@ -27,6 +28,7 @@ export default function AppRouter() {
           }
         >
           <Route index element={<HomePage />} />
+          <Route path="explore" element={<ExplorePage />} />
           <Route path="profile/:userId" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

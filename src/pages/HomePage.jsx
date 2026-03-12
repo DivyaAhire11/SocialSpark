@@ -28,7 +28,7 @@ function PostSkeleton() {
 }
 
 export default function HomePage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [showCreate, setShowCreate] = useState(false)
   const {
     data,
@@ -54,7 +54,7 @@ export default function HomePage() {
   const posts = data?.pages.flat() ?? []
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Create post box */}
       <div className="card p-4">
         <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ export default function HomePage() {
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {[1, 2, 3].map(i => <PostSkeleton key={i} />)}
         </div>
       )}
@@ -111,18 +111,18 @@ export default function HomePage() {
       {!isLoading && posts.length === 0 && !error && (
         <div className="card p-12 text-center">
           <Rss size={28} className="mx-auto text-gray-300 mb-3" />
-          <h3 className="font-semibold text-gray-700 text-base">Your feed is empty</h3>
-          <p className="text-gray-400 text-sm mt-1.5 mb-5 max-w-xs mx-auto">
-            Follow people or create your first post to see content here.
+          <h3 className="font-semibold text-gray-700 text-base">No posts yet</h3>
+          <p className="text-gray-500 text-sm mt-1.5 mb-5 max-w-xs mx-auto">
+            No posts yet. Follow people or create your first post.
           </p>
           <button onClick={() => setShowCreate(true)} className="btn-primary mx-auto">
             <PlusCircle size={15} />
-            Create first post
+            Create Post
           </button>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {posts.map(post => (
           <PostCard key={post.id} post={post} />
         ))}

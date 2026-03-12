@@ -15,7 +15,10 @@ export default function AuthPage() {
 
   const [form, setForm] = useState({ email: '', password: '', username: '', fullName: '' })
 
-  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(f => ({ ...f, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()

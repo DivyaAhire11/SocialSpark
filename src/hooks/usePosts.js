@@ -25,17 +25,30 @@ export function usePosts() {
           *,
           profiles:user_id (id, username, full_name, avatar_url),
           likes (id, user_id),
-          comments (id)
+          comments (id, content, created_at, profiles:user_id (id, username, avatar_url))
         `)
         .order('created_at', { ascending: false })
         .range(from, to)
 
-      if (followingIds.length > 0) {
+      // Only restrict to followingIds if the user actually follows other people
+      // or if we only want to show their own posts when they follow no one (Wait, requirements say: "If the user follows nobody, show recent public posts")
+      // So if followingIds only contains themselves (length === 1), we should NOT filter, and show public posts
+      if (followingIds.length > 1) {
         query = query.in('user_id', followingIds)
       }
 
       const { data, error } = await query
       if (error) throw error
+
+      // Sort comments by created_at inside the feed data
+      if (data) {
+        data.forEach(post => {
+          if (post.comments) {
+             post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          }
+        })
+      }
+
       return data ?? []
     },
     getNextPageParam: (lastPage, pages) =>
