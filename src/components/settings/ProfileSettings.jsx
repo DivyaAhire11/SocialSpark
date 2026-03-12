@@ -130,7 +130,7 @@ export default function ProfileSettings() {
               required
               value={formData.full_name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm"
               placeholder="Alice Wonderland"
             />
           </div>
@@ -143,7 +143,7 @@ export default function ProfileSettings() {
               required
               value={formData.username}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm"
               placeholder="alice123"
             />
           </div>
@@ -159,7 +159,7 @@ export default function ProfileSettings() {
             rows={3}
             value={formData.bio}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm resize-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm resize-none"
             placeholder="Write a short summary about yourself..."
           />
         </div>
@@ -168,7 +168,7 @@ export default function ProfileSettings() {
           <button 
             type="submit" 
             disabled={updateProfile.isPending}
-            className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-[#581C87] hover:bg-[#3B0764] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
           >
             {updateProfile.isPending && <Spinner size="sm" />}
             Save Changes

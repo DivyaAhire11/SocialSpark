@@ -24,7 +24,7 @@ export default function AppearanceSettings() {
             <button 
               onClick={() => setTheme('light')}
               className={`p-4 rounded-xl border-2 text-left transition-colors flex flex-col items-center gap-3 ${
-                theme === 'light' ? 'border-[#4F46E5] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
+                theme === 'light' ? 'border-[#581C87] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
               }`}
             >
               <div className="w-12 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-yellow-500">
@@ -36,7 +36,7 @@ export default function AppearanceSettings() {
             <button 
               onClick={() => setTheme('dark')}
               className={`p-4 rounded-xl border-2 text-left transition-colors flex flex-col items-center gap-3 ${
-                theme === 'dark' ? 'border-[#4F46E5] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
+                theme === 'dark' ? 'border-[#581C87] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
               }`}
             >
               <div className="w-12 h-12 rounded-full bg-gray-900 shadow-sm flex items-center justify-center text-blue-200">
@@ -48,7 +48,7 @@ export default function AppearanceSettings() {
             <button 
               onClick={() => setTheme('system')}
               className={`p-4 rounded-xl border-2 text-left transition-colors flex flex-col items-center gap-3 ${
-                theme === 'system' ? 'border-[#4F46E5] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
+                theme === 'system' ? 'border-[#581C87] bg-blue-50/30' : 'border-gray-200 hover:border-blue-200'
               }`}
             >
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-gray-200 to-gray-800 shadow-sm flex items-center justify-center text-white">

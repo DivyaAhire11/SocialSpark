@@ -95,13 +95,13 @@ export default function AccountSettings() {
                 required
                 value={emailInput}
                 onChange={e => setEmailInput(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm text-gray-900"
               />
             </div>
             <button 
               type="submit" 
               disabled={loading || emailInput === user?.email}
-              className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-[#581C87] hover:bg-[#3B0764] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
               Update Email
             </button>
@@ -121,7 +121,7 @@ export default function AccountSettings() {
                 required
                 value={passwords.current_password}
                 onChange={e => setPasswords({...passwords, current_password: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm"
               />
             </div>
             <div className="space-y-1.5">
@@ -131,7 +131,7 @@ export default function AccountSettings() {
                 required
                 value={passwords.new_password}
                 onChange={e => setPasswords({...passwords, new_password: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm"
               />
             </div>
             <div className="space-y-1.5">
@@ -141,7 +141,7 @@ export default function AccountSettings() {
                 required
                 value={passwords.confirm_password}
                 onChange={e => setPasswords({...passwords, confirm_password: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#4F46E5] text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#581C87] text-sm"
               />
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function AccountSettings() {
             <button 
               type="submit" 
               disabled={loading || !passwords.new_password}
-              className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-[#581C87] hover:bg-[#3B0764] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
             >
               {loading && <Spinner size="sm" />}
               Save Password
