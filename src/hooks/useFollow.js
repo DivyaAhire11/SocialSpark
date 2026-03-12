@@ -80,3 +80,41 @@ export function useFollowCounts(userId) {
 
   return { followerCount, followingCount }
 }
+
+export function useFollowersList(userId) {
+  return useQuery({
+    queryKey: ['followers_list', userId],
+    queryFn: async () => {
+      // Find all records where following_id is userId (people following them)
+      const { data, error } = await supabase
+        .from('follows')
+        .select(`
+          id,
+          profiles:follower_id (id, username, full_name, avatar_url, bio)
+        `)
+        .eq('following_id', userId)
+      if (error) throw error
+      return data ? data.map(f => f.profiles).filter(Boolean) : []
+    },
+    enabled: !!userId,
+  })
+}
+
+export function useFollowingList(userId) {
+  return useQuery({
+    queryKey: ['following_list', userId],
+    queryFn: async () => {
+      // Find all records where follower_id is userId (people they follow)
+      const { data, error } = await supabase
+        .from('follows')
+        .select(`
+          id,
+          profiles:following_id (id, username, full_name, avatar_url, bio)
+        `)
+        .eq('follower_id', userId)
+      if (error) throw error
+      return data ? data.map(f => f.profiles).filter(Boolean) : []
+    },
+    enabled: !!userId,
+  })
+}

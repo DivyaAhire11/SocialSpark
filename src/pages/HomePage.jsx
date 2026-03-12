@@ -1,6 +1,8 @@
 import { useRef, useCallback, useState } from 'react'
 import { usePosts } from '../hooks/usePosts'
+import { useStories } from '../hooks/useStories'
 import PostCard from '../components/post/PostCard'
+import StoriesRow from '../components/story/StoriesRow'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import PostCreateModal from '../components/post/PostCreateModal'
@@ -39,6 +41,8 @@ export default function HomePage() {
     error,
   } = usePosts()
 
+  const { data: stories } = useStories()
+
   // Infinite scroll observer
   const observerRef = useRef()
   const loadMoreRef = useCallback(node => {
@@ -55,6 +59,12 @@ export default function HomePage() {
 
   return (
     <div className="space-y-5">
+      
+      {/* Stories Timeline */}
+      <div className="card p-4">
+        <StoriesRow stories={stories || []} />
+      </div>
+
       {/* Create post box */}
       <div className="card p-4">
         <div className="flex items-center gap-3">
