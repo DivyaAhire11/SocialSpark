@@ -7,13 +7,14 @@ import LikeButton from './LikeButton'
 import CommentSection from './CommentSection'
 import { useAuth } from '../../hooks/useAuth'
 import { useDeletePost } from '../../hooks/usePosts'
+import { useSavedStatus } from '../../hooks/useSavedPosts'
 
 export default function PostCard({ post }) {
   const { user } = useAuth()
   const [showComments, setShowComments] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  const [saved, setSaved] = useState(false)
   const deletePost = useDeletePost()
+  const { isSaved, toggleSaved, isPending: isSavePending } = useSavedStatus(post.id)
 
   const profile = post.profiles
   const isOwner = user?.id === post.user_id
@@ -119,11 +120,13 @@ export default function PostCard({ post }) {
             </button>
           </div>
           <button
-            onClick={() => setSaved(!saved)}
-            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${saved ? 'text-blue-500 bg-blue-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
-              }`}
+            onClick={() => toggleSaved()}
+            disabled={isSavePending}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+              isSaved ? 'text-blue-500 bg-blue-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+            }`}
           >
-            <Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />
+            <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
         </div>
 

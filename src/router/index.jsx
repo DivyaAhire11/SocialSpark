@@ -7,6 +7,8 @@ import ExplorePage from '../pages/ExplorePage'
 import FriendsPage from '../pages/FriendsPage'
 import MessagesPage from '../pages/MessagesPage'
 import NotificationsPage from '../pages/NotificationsPage'
+import SavedPage from '../pages/SavedPage'
+import SettingsPage from '../pages/SettingsPage'
 import AppLayout from '../components/layout/AppLayout'
 import { useAuth } from '../context/AuthContext'
 
@@ -35,6 +37,8 @@ export default function AppRouter() {
           <Route path="friends" element={<FriendsPage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="saved" element={<SavedPage />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="profile/:userId" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
