@@ -21,7 +21,7 @@ export function useComments(postId) {
   })
 
   const addComment = useMutation({
-    mutationFn: async (content) => {
+    mutationFn: async ({ content, postAuthorId }) => {
       if (!user) throw new Error('Not authenticated')
       const { data, error } = await supabase
         .from('comments')
@@ -29,6 +29,17 @@ export function useComments(postId) {
         .select('*, profiles:user_id (id, username, full_name, avatar_url)')
         .single()
       if (error) throw error
+
+      if (postAuthorId && postAuthorId !== user.id) {
+          await supabase.from('notifications').insert({
+              user_id: postAuthorId,
+              actor_id: user.id,
+              type: 'comment',
+              post_id: postId,
+              content: content.substring(0, 50)
+          })
+      }
+
       return data
     },
     onSuccess: () => {

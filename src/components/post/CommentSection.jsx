@@ -6,7 +6,7 @@ import Avatar from '../ui/Avatar'
 import Spinner from '../ui/Spinner'
 import { formatDistanceToNow } from 'date-fns'
 
-export default function CommentSection({ postId }) {
+export default function CommentSection({ postId, postAuthorId }) {
   const { user } = useAuth()
   const { comments, addComment, deleteComment, addingComment } = useComments(postId)
   const [text, setText] = useState('')
@@ -14,7 +14,7 @@ export default function CommentSection({ postId }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!text.trim()) return
-    addComment(text.trim())
+    addComment({ content: text.trim(), postAuthorId })
     setText('')
   }
 

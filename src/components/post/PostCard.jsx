@@ -105,7 +105,7 @@ export default function PostCard({ post }) {
         {/* Action Buttons */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-0.5">
-            <LikeButton postId={post.id} initialCount={likeCount} />
+            <LikeButton postId={post.id} initialCount={likeCount} postAuthorId={post.user_id} />
             <button
               onClick={() => setShowComments(!showComments)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors text-sm font-medium"
@@ -152,7 +152,7 @@ export default function PostCard({ post }) {
         {/* Full Comments section */}
         {showComments && (
           <div className="mt-3 pt-3 border-t border-gray-100 animate-fade-in">
-            <CommentSection postId={post.id} />
+            <CommentSection postId={post.id} postAuthorId={post.user_id} />
           </div>
         )}
       </div>

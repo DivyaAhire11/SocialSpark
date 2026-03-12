@@ -3,7 +3,7 @@ import { Heart } from 'lucide-react'
 import { useLikes } from '../../hooks/useLikes'
 import { useAuth } from '../../hooks/useAuth'
 
-export default function LikeButton({ postId, initialCount = 0 }) {
+export default function LikeButton({ postId, initialCount = 0, postAuthorId }) {
   const { user } = useAuth()
   const { isLiked, likeCount, toggleLike } = useLikes(postId)
   const [animating, setAnimating] = useState(false)
@@ -12,7 +12,7 @@ export default function LikeButton({ postId, initialCount = 0 }) {
     if (!user) return
     setAnimating(true)
     setTimeout(() => setAnimating(false), 300)
-    toggleLike()
+    toggleLike(postAuthorId)
   }
 
   return (

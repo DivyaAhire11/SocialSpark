@@ -37,6 +37,14 @@ export function useFollow(targetUserId) {
           .from('follows')
           .insert({ follower_id: user.id, following_id: targetUserId })
         if (error) throw error
+
+        if (targetUserId !== user.id) {
+            await supabase.from('notifications').insert({
+                user_id: targetUserId,
+                actor_id: user.id,
+                type: 'follow'
+            })
+        }
       }
     },
     onSuccess: () => {

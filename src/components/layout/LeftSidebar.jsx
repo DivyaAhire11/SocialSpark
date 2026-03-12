@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../../hooks/useAuth'
 import Avatar from '../ui/Avatar'
 import { useFollowCounts } from '../../hooks/useFollow'
+import { useNotifications } from '../../hooks/useNotifications'
 import PostCreateModal from '../post/PostCreateModal'
 
 const NAV_ITEMS = [
@@ -26,6 +27,15 @@ export default function LeftSidebar() {
   const navigate = useNavigate()
   const { followerCount, followingCount } = useFollowCounts(user?.id)
   const [showCreate, setShowCreate] = useState(false)
+  const { unreadCount } = useNotifications()
+
+  // Dynamically inject badges
+  const dynamicNavItems = NAV_ITEMS.map(item => {
+    if (item.path === '/notifications') {
+      return { ...item, badge: unreadCount }
+    }
+    return item
+  })
 
   const handleSignOut = async () => {
     await signOut()
@@ -95,7 +105,7 @@ export default function LeftSidebar() {
 
       {/* Navigation */}
       <div className="card p-2 space-y-0.5">
-        {NAV_ITEMS.map(({ icon: Icon, label, path, badge }) => (
+        {dynamicNavItems.map(({ icon: Icon, label, path, badge }) => (
           <Link
             key={path}
             to={path}

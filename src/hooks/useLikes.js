@@ -24,7 +24,7 @@ export function useLikes(postId) {
   const queryClient = useQueryClient()
 
   const toggle = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (postAuthorId) => {
       if (!user) throw new Error('Not authenticated')
       if (isLiked) {
         const { error } = await supabase
@@ -38,6 +38,15 @@ export function useLikes(postId) {
           .from('likes')
           .insert({ post_id: postId, user_id: user.id })
         if (error) throw error
+
+        if (postAuthorId && postAuthorId !== user.id) {
+          await supabase.from('notifications').insert({
+              user_id: postAuthorId,
+              actor_id: user.id,
+              type: 'like',
+              post_id: postId
+          })
+        }
       }
     },
     onMutate: async () => {
