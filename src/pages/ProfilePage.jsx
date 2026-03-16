@@ -1,12 +1,13 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useProfile } from '../hooks/useProfile'
 import { useUserPosts } from '../hooks/usePosts'
 import { useFollow, useFollowCounts } from '../hooks/useFollow'
+import { useGetOrCreateConversation } from '../hooks/useMessages'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/ui/Avatar'
 import Spinner from '../components/ui/Spinner'
 import PostCard from '../components/post/PostCard'
-import { Camera, Grid, UserCheck, UserPlus, ImageIcon } from 'lucide-react'
+import { Camera, Grid, UserCheck, UserPlus, ImageIcon, MessageSquare } from 'lucide-react'
 
 function ProfileSkeleton() {
   return (
@@ -25,15 +26,27 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const { userId } = useParams()
+  const navigate = useNavigate()
   const { user: currentUser, profile: currentProfile } = useAuth()
   const isOwnProfile = currentUser?.id === userId
 
   const { data: profile, isLoading: profileLoading } = useProfile(userId)
   const { data: postsData, isLoading: postsLoading } = useUserPosts(userId)
   const { followerCount, followingCount } = useFollowCounts(userId)
-  const { isFollowing, toggleFollow, isPending } = useFollow(userId)
+  const { isFollowing, toggleFollow, isPending: followPending } = useFollow(userId)
+  const { mutateAsync: getOrCreateConversation, isPending: messagePending } = useGetOrCreateConversation()
 
   const posts = postsData?.pages.flat() ?? []
+
+  const handleMessageClick = async () => {
+    try {
+      const conversationId = await getOrCreateConversation(userId)
+      navigate(`/messages/${conversationId}`)
+    } catch (err) {
+      console.error("Failed to start conversation:", err)
+      alert("Could not start conversation.")
+    }
+  }
 
   if (profileLoading) return <ProfileSkeleton />
 
@@ -77,19 +90,28 @@ export default function ProfilePage() {
               </div>
 
               {!isOwnProfile && (
-                <button
-                  onClick={() => toggleFollow()}
-                  disabled={isPending}
-                  className={`sm:ml-auto flex items-center gap-1.5 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${isFollowing ? 'btn-following' : 'btn-follow'
-                    }`}
-                >
-                  {isPending
-                    ? <Spinner size="sm" />
-                    : isFollowing
-                      ? <><UserCheck size={15} /> Following</>
-                      : <><UserPlus size={15} /> Follow</>
-                  }
-                </button>
+                <div className="flex items-center gap-2 sm:ml-auto">
+                  <button
+                    onClick={handleMessageClick}
+                    disabled={messagePending}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all active:scale-95"
+                  >
+                    {messagePending ? <Spinner size="sm" /> : <><MessageSquare size={15} /> Message</>}
+                  </button>
+                  <button
+                    onClick={() => toggleFollow()}
+                    disabled={followPending}
+                    className={`flex items-center gap-1.5 px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${isFollowing ? 'btn-following' : 'btn-follow'
+                      }`}
+                  >
+                    {followPending
+                      ? <Spinner size="sm" />
+                      : isFollowing
+                        ? <><UserCheck size={15} /> Following</>
+                        : <><UserPlus size={15} /> Follow</>
+                    }
+                  </button>
+                </div>
               )}
             </div>
 

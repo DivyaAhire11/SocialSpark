@@ -36,6 +36,7 @@ export default function AppRouter() {
           <Route path="explore" element={<ExplorePage />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="messages" element={<MessagesPage />} />
+          <Route path="messages/:conversationId" element={<MessagesPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="saved" element={<SavedPage />} />
           <Route path="settings" element={<SettingsPage />} />

@@ -7,20 +7,36 @@ import { useConversations, useChatMessages, useSendMessage } from '../hooks/useM
 import Avatar from '../components/ui/Avatar'
 import Spinner from '../components/ui/Spinner'
 
+import { useNavigate, useParams } from 'react-router-dom'
+
 export default function MessagesPage() {
   const { user } = useAuth()
-  const [activeChatId, setActiveChatId] = useState(null)
+  const { conversationId } = useParams()
+  const navigate = useNavigate()
   
+  const [activeConversationId, setActiveConversationId] = useState(conversationId)
+  
+  useEffect(() => {
+    if (conversationId) {
+      setActiveConversationId(conversationId)
+    }
+  }, [conversationId])
+
+  const handleConversationSelect = (id) => {
+    setActiveConversationId(id)
+    navigate(`/messages/${id}`)
+  }
+
   // Left Panel data
   const { data: conversations, isLoading: isLoadingConvos } = useConversations()
-  const activeChat = conversations?.find(c => c.otherUser.id === activeChatId)
+  const activeConversation = conversations?.find(c => c.id === activeConversationId)
 
   return (
     <div className="h-[calc(100vh-theme(spacing.20))] sm:h-[calc(100vh-theme(spacing.16))] py-4 sm:pt-4 sm:pb-8 flex flex-col">
       <div className="card flex-1 flex overflow-hidden border border-gray-100 shadow-sm relative">
         
         {/* Left Pane: Conversations List */}
-        <div className={`w-full md:w-80 flex-shrink-0 flex flex-col border-r border-gray-100 bg-white transition-transform duration-300 ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-80 flex-shrink-0 flex flex-col border-r border-gray-100 bg-white transition-transform duration-300 ${activeConversationId ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b border-gray-100">
             <h2 className="font-bold text-gray-900 text-lg">Messages</h2>
             <div className="mt-3 relative">
@@ -28,7 +44,7 @@ export default function MessagesPage() {
               <input
                 type="text"
                 placeholder="Search messages..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-full pl-9 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all caret-blue-500"
+                className="w-full bg-gray-50 border border-gray-200 rounded-full pl-9 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all caret-[#8B5CF6]"
               />
             </div>
           </div>
@@ -43,15 +59,15 @@ export default function MessagesPage() {
               </div>
             ) : (
               conversations?.map((conv) => {
-                const { otherUser, lastMessage, unreadCount } = conv
-                const isActive = otherUser.id === activeChatId
+                const { id, otherUser, lastMessage, unreadCount } = conv
+                const isActive = id === activeConversationId
                 
                 return (
                   <button
-                    key={otherUser.id}
-                    onClick={() => setActiveChatId(otherUser.id)}
+                    key={id}
+                    onClick={() => handleConversationSelect(id)}
                     className={`w-full p-4 flex items-center gap-3 text-left transition-colors border-b border-gray-50 last:border-0 hover:bg-gray-50 ${
-                      isActive ? 'bg-blue-50/50' : ''
+                      isActive ? 'bg-purple-50/50' : ''
                     }`}
                   >
                     <div className="relative">
@@ -68,11 +84,13 @@ export default function MessagesPage() {
                           {otherUser.full_name || otherUser.username}
                         </span>
                         <span className="text-[10px] text-gray-400 whitespace-nowrap ml-2">
-                          {formatDistanceToNow(new Date(lastMessage.created_at), { addSuffix: false }).replace('about ', '').replace(' minutes', 'm').replace(' hours', 'h').replace(' days', 'd')}
+                          {lastMessage ? formatDistanceToNow(new Date(lastMessage.created_at), { addSuffix: false }).replace('about ', '').replace(' minutes', 'm').replace(' hours', 'h').replace(' days', 'd') : ''}
                         </span>
                       </div>
                       <p className={`text-xs truncate ${unreadCount > 0 ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
-                        {lastMessage.sender_id === user?.id ? 'You: ' : ''}{lastMessage.content}
+                        {lastMessage ? (
+                          <>{lastMessage.sender_id === user?.id ? 'You: ' : ''}{lastMessage.content}</>
+                        ) : 'No messages'}
                       </p>
                     </div>
                   </button>
@@ -83,16 +101,17 @@ export default function MessagesPage() {
         </div>
 
         {/* Right Pane: Active Chat Window */}
-        <div className={`flex-1 flex flex-col bg-white ${!activeChatId ? 'hidden md:flex' : 'flex'}`}>
-          {activeChatId && activeChat ? (
+        <div className={`flex-1 flex flex-col bg-white ${!activeConversationId ? 'hidden md:flex' : 'flex'}`}>
+          {activeConversationId && activeConversation ? (
             <ChatWindow 
-              otherUser={activeChat.otherUser} 
-              onBack={() => setActiveChatId(null)}
+              conversationId={activeConversationId}
+              otherUser={activeConversation.otherUser} 
+              onBack={() => navigate('/messages')}
             />
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8 text-center bg-gray-50/50">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 border border-gray-100">
-                <MessageSquare size={24} className="text-blue-500" />
+                <MessageSquare size={24} className="text-[#8B5CF6]" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Messages</h3>
               <p className="text-sm max-w-xs leading-relaxed">
@@ -108,9 +127,9 @@ export default function MessagesPage() {
 }
 
 
-function ChatWindow({ otherUser, onBack }) {
+function ChatWindow({ conversationId, otherUser, onBack }) {
   const { user } = useAuth()
-  const { data: messages, isLoading } = useChatMessages(otherUser.id)
+  const { data: messages, isLoading } = useChatMessages(conversationId)
   const sendMessage = useSendMessage()
   
   const [inputVal, setInputVal] = useState('')
@@ -133,7 +152,7 @@ function ChatWindow({ otherUser, onBack }) {
     setInputVal('') // optimistic clear
 
     try {
-      await sendMessage.mutateAsync({ content, receiver_id: otherUser.id })
+      await sendMessage.mutateAsync({ content, conversationId })
     } catch (err) {
       setInputVal(content) // revert on fail
       alert('Failed to send message.')
@@ -154,7 +173,7 @@ function ChatWindow({ otherUser, onBack }) {
         <Link to={`/profile/${otherUser.id}`} className="flex items-center gap-3 group">
           <Avatar src={otherUser.avatar_url} alt={otherUser.username} size="md" />
           <div>
-            <p className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
+            <p className="font-semibold text-gray-900 text-sm group-hover:text-[#8B5CF6] transition-colors">
               {otherUser.full_name || otherUser.username}
             </p>
             <p className="text-xs text-gray-500">@{otherUser.username}</p>
@@ -196,14 +215,14 @@ function ChatWindow({ otherUser, onBack }) {
                   )}
                   <div className={`px-4 py-2 text-sm shadow-sm ${
                     isMe 
-                      ? 'bg-blue-500 text-white rounded-2xl rounded-br-sm' 
+                      ? 'bg-[#8B5CF6] text-white rounded-2xl rounded-br-sm' 
                       : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-sm'
                   }`}>
                     {msg.content}
                   </div>
                 </div>
                 {/* Read Receipt (only on latest message if sent by me) */}
-                {isMe && i === messages.length - 1 && msg.read && (
+                {isMe && i === messages.length - 1 && msg.is_read && (
                   <span className="text-[10px] text-gray-400 self-end mt-1 mr-1">Seen</span>
                 )}
               </div>
@@ -221,13 +240,13 @@ function ChatWindow({ otherUser, onBack }) {
             value={inputVal}
             onChange={e => setInputVal(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 bg-gray-100 border-transparent focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-full pl-5 pr-12 py-2.5 text-sm transition-all caret-blue-500"
+            className="flex-1 bg-gray-100 border-transparent focus:border-[#8B5CF6] focus:bg-white focus:ring-2 focus:ring-purple-100 rounded-full pl-5 pr-12 py-2.5 text-sm transition-all caret-[#8B5CF6]"
           />
           <button
             type="submit"
             disabled={!inputVal.trim() || sendMessage.isPending}
             className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              inputVal.trim() ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-transparent text-gray-300'
+              inputVal.trim() ? 'bg-[#8B5CF6] text-white hover:bg-[#7C3AED]' : 'bg-transparent text-gray-300'
             }`}
           >
             <Send size={15} className="ml-0.5" />

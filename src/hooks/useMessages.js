@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
 
+// Hook to get the list of conversations for the current user
 export function useConversations() {
   const { user } = useAuth()
   
@@ -11,114 +12,122 @@ export function useConversations() {
     queryFn: async () => {
       if (!user) return []
 
-      // Fetch all messages involving the current user (sent or received)
-      const { data, error } = await supabase
-        .from('messages')
+      // 1. Get all conversations the user is a part of
+      const { data: convos, error: convosError } = await supabase
+        .from('participants')
         .select(`
-          id, content, created_at, sender_id, receiver_id, read,
-          sender:sender_id (id, username, full_name, avatar_url),
-          receiver:receiver_id (id, username, full_name, avatar_url)
+          conversation_id,
+          conversations (
+            id,
+            created_at,
+            messages (
+              id, content, created_at, sender_id, is_read
+            )
+          )
         `)
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order('created_at', { ascending: false })
+        .eq('user_id', user.id)
 
-      if (error) throw error
+      if (convosError) throw convosError
+      if (!convos) return []
 
-      if (!data || data.length === 0) return []
-
-      // Group into unique conversations by the *other* user
-      const conversationsMap = new Map()
-
-      data.forEach(msg => {
-        const isSender = msg.sender_id === user.id
-        const otherUser = isSender ? msg.receiver : msg.sender
-        const otherUserId = otherUser.id
+      // 2. For each conversation, find the OTHER participant and the last message
+      const results = await Promise.all(convos.map(async (item) => {
+        const conversationId = item.conversation_id
         
-        // If we haven't seen a message from this user yet, this is the most recent one.
-        if (!conversationsMap.has(otherUserId)) {
-          conversationsMap.set(otherUserId, {
-            otherUser,
-            lastMessage: msg,
-            unreadCount: (!isSender && !msg.read) ? 1 : 0
-          })
-        } else if (!isSender && !msg.read) {
-          // Increment unread count for older messages in this conversation
-          conversationsMap.get(otherUserId).unreadCount++
-        }
-      })
+        // Find other participants
+        const { data: others, error: othersError } = await supabase
+          .from('participants')
+          .select('profiles (id, username, full_name, avatar_url)')
+          .eq('conversation_id', conversationId)
+          .neq('user_id', user.id)
+          .single()
 
-      return Array.from(conversationsMap.values())
+        if (othersError) {
+          console.error("Error fetching other participant:", othersError)
+          return null
+        }
+
+        const msgs = item.conversations.messages || []
+        // Sort messages by created_at desc to get the last one
+        msgs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        const lastMessage = msgs[0]
+
+        if (!lastMessage) return null // Hide empty conversations if desired, or keep them
+
+        return {
+          id: conversationId,
+          otherUser: others.profiles,
+          lastMessage,
+          unreadCount: msgs.filter(m => !m.is_read && m.sender_id !== user.id).length
+        }
+      }))
+
+      return results.filter(Boolean).sort((a, b) => 
+        new Date(b.lastMessage?.created_at) - new Date(a.lastMessage?.created_at)
+      )
     },
     enabled: !!user
   })
 }
 
-export function useChatMessages(otherUserId) {
+// Hook to fetch messages for a specific conversation ID
+export function useChatMessages(conversationId) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
   const query = useQuery({
-    queryKey: ['messages', user?.id, otherUserId],
+    queryKey: ['messages', conversationId],
     queryFn: async () => {
-      if (!user || !otherUserId) return []
+      if (!user || !conversationId) return []
 
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          id, content, created_at, sender_id, receiver_id, read,
-          sender:sender_id (id, username, full_name, avatar_url),
-          receiver:receiver_id (id, username, full_name, avatar_url)
+          id, content, created_at, sender_id, is_read,
+          sender:sender_id (id, username, full_name, avatar_url)
         `)
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+        .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
 
       if (error) throw error
 
       // Mark unread incoming messages as read
       const unreadIds = data
-        .filter(m => m.receiver_id === user.id && !m.read)
+        .filter(m => m.sender_id !== user.id && !m.is_read)
         .map(m => m.id)
 
       if (unreadIds.length > 0) {
-        // Fire and forget, don't block render
-        supabase
+        await supabase
           .from('messages')
-          .update({ read: true })
+          .update({ is_read: true })
           .in('id', unreadIds)
-          .then(() => {
-             queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
-          })
+          
+        queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
       }
 
       return data ?? []
     },
-    enabled: !!user && !!otherUserId,
+    enabled: !!user && !!conversationId,
   })
 
-  // Set up Real-time Subscription for this specific chat
+  // Real-time Subscription
   useEffect(() => {
-    if (!user || !otherUserId) return
+    if (!user || !conversationId) return
 
-    const channelName = `chat_${Math.min(user.id, otherUserId)}_${Math.max(user.id, otherUserId)}`
-    
-    // We subscribe to INSERT events on the messages table where the message belongs to this specific conversation
     const channel = supabase
-      .channel(channelName)
+      .channel(`room_${conversationId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `receiver_id=eq.${user.id}` // Note: filters on Supabase Realtime only support one eq per column, 
-                                              // we will just listen to ALL inserts and filter client side if easier, 
-                                              // or just invalidate to guarantee relationships are loaded.
+          filter: `conversation_id=eq.${conversationId}`
         },
         () => {
-           // When a new message drops in, strictly invalidate to fetch the new row + joined profile data.
-           // We invalidate both the active chat and the sidebar list.
-           queryClient.invalidateQueries({ queryKey: ['messages', user?.id, otherUserId] })
-           queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] })
+           // Refetch messages and conversation list
+           queryClient.invalidateQueries({ queryKey: ['messages', conversationId] })
+           queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
         }
       )
       .subscribe()
@@ -126,26 +135,27 @@ export function useChatMessages(otherUserId) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user, otherUserId, queryClient])
+  }, [user, conversationId, queryClient])
 
   return query
 }
 
+// Hook to send a message
 export function useSendMessage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ content, receiver_id }) => {
-      if (!user || !content.trim() || !receiver_id) throw new Error('Invalid message payload')
+    mutationFn: async ({ content, conversationId }) => {
+      if (!user || !content.trim() || !conversationId) throw new Error('Invalid message payload')
 
       const { data, error } = await supabase
         .from('messages')
         .insert({
           content: content.trim(),
           sender_id: user.id,
-          receiver_id: receiver_id,
-          read: false
+          conversation_id: conversationId,
+          is_read: false
         })
         .select()
         .single()
@@ -154,9 +164,68 @@ export function useSendMessage() {
       return data
     },
     onSuccess: (_, variables) => {
-      // Instantly update local chat cache so the sender sees it immediately
-      queryClient.invalidateQueries({ queryKey: ['messages', user?.id, variables.receiver_id] })
-      // Update sidebar latest message preview
+      queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] })
+    }
+  })
+}
+
+// Hook to find or create a conversation with another user
+export function useGetOrCreateConversation() {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (targetUserId) => {
+      if (!user || !targetUserId) throw new Error('Missing IDs')
+
+      // 1. Check if a conversation between these two already exists
+      const { data: existing, error: checkError } = await supabase
+        .rpc('get_conversation_with_user', { target_user_id: targetUserId })
+
+      if (checkError) {
+        // Fallback or complex query if RPC isn't available
+        // For simplicity in this plan, let's assume we'll add the RPC or use a join
+        // Let's use a standard query instead to be safe
+        const { data: myConvos } = await supabase
+          .from('participants')
+          .select('conversation_id')
+          .eq('user_id', user.id)
+        
+        const myIds = myConvos?.map(c => c.conversation_id) || []
+        
+        if (myIds.length > 0) {
+          const { data: shared } = await supabase
+            .from('participants')
+            .select('conversation_id')
+            .in('conversation_id', myIds)
+            .eq('user_id', targetUserId)
+            .maybeSingle()
+          
+          if (shared) return shared.conversation_id
+        }
+      } else if (existing) {
+        return existing
+      }
+
+      // 2. Create new conversation
+      const { data: newConvo, error: createError } = await supabase
+        .from('conversations')
+        .insert({})
+        .select()
+        .single()
+
+      if (createError) throw createError
+
+      // 3. Add both participants
+      await supabase.from('participants').insert([
+        { conversation_id: newConvo.id, user_id: user.id },
+        { conversation_id: newConvo.id, user_id: targetUserId }
+      ])
+
+      return newConvo.id
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] })
     }
   })

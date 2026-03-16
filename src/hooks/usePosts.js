@@ -2,6 +2,17 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
 
+const POST_SELECT = `
+  *,
+  profiles:user_id (id, username, full_name, avatar_url),
+  likes (id, user_id),
+  comments (id, content, created_at, profiles:user_id (id, username, avatar_url)),
+  shared_post:shared_post_id (
+    id, caption, image_url, created_at,
+    profiles:user_id (id, username, avatar_url)
+  )
+`
+
 export function usePosts() {
   const { user } = useAuth()
 
@@ -21,18 +32,10 @@ export function usePosts() {
 
       let query = supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (id, username, full_name, avatar_url),
-          likes (id, user_id),
-          comments (id, content, created_at, profiles:user_id (id, username, avatar_url))
-        `)
+        .select(POST_SELECT)
         .order('created_at', { ascending: false })
         .range(from, to)
 
-      // Only restrict to followingIds if the user actually follows other people
-      // or if we only want to show their own posts when they follow no one (Wait, requirements say: "If the user follows nobody, show recent public posts")
-      // So if followingIds only contains themselves (length === 1), we should NOT filter, and show public posts
       if (followingIds.length > 1) {
         query = query.in('user_id', followingIds)
       }
@@ -40,7 +43,6 @@ export function usePosts() {
       const { data, error } = await query
       if (error) throw error
 
-      // Sort comments by created_at inside the feed data
       if (data) {
         data.forEach(post => {
           if (post.comments) {
@@ -65,12 +67,7 @@ export function useAllPosts() {
       const to = from + 9
       const { data, error } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (id, username, full_name, avatar_url),
-          likes (id, user_id),
-          comments (id)
-        `)
+        .select(POST_SELECT)
         .order('created_at', { ascending: false })
         .range(from, to)
       if (error) throw error
@@ -89,12 +86,7 @@ export function useUserPosts(userId) {
       const to = from + 11
       const { data, error } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (id, username, full_name, avatar_url),
-          likes (id, user_id),
-          comments (id)
-        `)
+        .select(POST_SELECT)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .range(from, to)
@@ -141,6 +133,51 @@ export function useCreatePost() {
   })
 }
 
+export function useUpdatePost() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ postId, caption }) => {
+      const { data, error } = await supabase
+        .from('posts')
+        .update({ caption })
+        .eq('id', postId)
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      queryClient.invalidateQueries({ queryKey: ['posts', 'single', data.id] })
+    },
+  })
+}
+
+export function useSharePost() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: async ({ originalPostId, caption }) => {
+      const { data, error } = await supabase
+        .from('posts')
+        .insert({
+          user_id: user.id,
+          caption,
+          shared_post_id: originalPostId
+        })
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    },
+  })
+}
+
 export function usePost(postId) {
   return useQuery({
     queryKey: ['posts', 'single', postId],
@@ -148,12 +185,7 @@ export function usePost(postId) {
       if (!postId) return null
       const { data, error } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles:user_id (id, username, full_name, avatar_url),
-          likes (id, user_id),
-          comments (id, content, created_at, profiles:user_id (id, username, avatar_url))
-        `)
+        .select(POST_SELECT)
         .eq('id', postId)
         .single()
       if (error) throw error
