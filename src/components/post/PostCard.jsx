@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MoreHorizontal, MessageCircle, Share2, Bookmark, Heart } from 'lucide-react'
+import { MoreHorizontal, MessageCircle, Share2, Bookmark } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import Avatar from '../ui/Avatar'
 import LikeButton from './LikeButton'
@@ -18,7 +18,6 @@ export default function PostCard({ post }) {
 
   const profile = post.profiles
   const isOwner = user?.id === post.user_id
-  const likeCount = post.likes?.length ?? 0
   const commentCount = post.comments?.length ?? 0
   
   // Get first 2 comments for preview
@@ -32,21 +31,22 @@ export default function PostCard({ post }) {
   }
 
   return (
-    <div className="post-card p-4 animate-fade-in">
+    <div className="post-card animate-fade-in group/card">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3">
+      <div className="flex items-center justify-between pb-4">
         <Link to={`/profile/${post.user_id}`} className="flex items-center gap-3 group">
           <Avatar
             src={profile?.avatar_url}
             alt={profile?.full_name || profile?.username}
             size="md"
+            className="ring-2 ring-transparent group-hover:ring-[#8B5CF6] transition-colors duration-200"
           />
           <div>
-            <p className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
+            <p className="font-bold text-gray-900 text-sm group-hover:text-[#8B5CF6] transition-colors">
               {profile?.full_name || profile?.username}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              @{profile?.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+            <p className="text-xs text-gray-500 mt-0.5 font-medium">
+              @{profile?.username} • {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
             </p>
           </div>
         </Link>
@@ -55,16 +55,15 @@ export default function PostCard({ post }) {
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors"
             >
-              <MoreHorizontal size={17} />
+              <MoreHorizontal size={18} />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-10 bg-white rounded-xl border border-gray-200 py-1 z-10 w-36 animate-fade-in"
-                style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
+              <div className="absolute right-0 top-10 bg-white rounded-xl border border-gray-200 py-1 z-10 w-36 shadow-dropdown animate-fade-in">
                 <button
                   onClick={handleDelete}
-                  className="w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 text-left transition-colors"
+                  className="w-full px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 text-left transition-colors"
                 >
                   Delete post
                 </button>
@@ -83,59 +82,53 @@ export default function PostCard({ post }) {
 
       {/* Image */}
       {post.image_url && (
-        <div className="w-full mb-3">
+        <div className="w-full mb-4">
           <img
             src={post.image_url}
             alt={post.caption || 'Post image'}
-            className="w-full object-cover max-h-96 rounded-lg border border-gray-100"
+            className="w-full object-cover max-h-[500px] rounded-xl border border-gray-100"
             loading="lazy"
           />
         </div>
       )}
 
-      {/* Action bar area */}
+      {/* Action Buttons Footer */}
       <div>
-        {/* Like/comment counts summary */}
-        {(likeCount > 0 || commentCount > 0) && (
-          <div className="flex items-center justify-between text-xs text-gray-400 mb-2 pb-2 border-b border-gray-100">
-            <span>{likeCount > 0 ? `${likeCount} like${likeCount !== 1 ? 's' : ''}` : ''}</span>
-            <span>{commentCount > 0 ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}` : ''}</span>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-0.5">
-            <LikeButton postId={post.id} initialCount={likeCount} postAuthorId={post.user_id} />
+        <div className="flex items-center justify-between pt-1 border-t border-gray-50 mt-1">
+          <div className="flex items-center gap-1 -ml-2">
+            <LikeButton postId={post.id} initialCount={post.likes?.length ?? 0} postAuthorId={post.user_id} />
+            
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors text-sm font-medium"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-[#8B5CF6] transition-all duration-200 hover:scale-105 active:scale-95 text-sm font-medium"
             >
-              <MessageCircle size={17} strokeWidth={1.8} />
-              <span>Comment</span>
+              <MessageCircle size={18} strokeWidth={1.8} />
+              <span>{commentCount > 0 ? commentCount : 'Comment'}</span>
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors text-sm font-medium">
-              <Share2 size={17} strokeWidth={1.8} />
-              <span>Share</span>
+            
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-[#8B5CF6] transition-all duration-200 hover:scale-105 active:scale-95 text-sm font-medium">
+              <Share2 size={18} strokeWidth={1.8} />
+              <span className="hidden sm:inline">Share</span>
             </button>
           </div>
+
           <button
             onClick={() => toggleSaved()}
             disabled={isSavePending}
-            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              isSaved ? 'text-blue-500 bg-blue-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+            className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 hover:scale-105 active:scale-95 -mr-2 ${
+              isSaved ? 'text-[#8B5CF6] bg-purple-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
             }`}
           >
-            <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} />
+            <Bookmark size={18} strokeWidth={1.8} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
         </div>
 
         {/* Inline Comments Preview (Always visible unless full section is open) */}
         {!showComments && previewComments.length > 0 && (
-          <div className="mt-1 space-y-1">
+          <div className="mt-3 space-y-1.5 px-1">
             {previewComments.map(comment => (
               <div key={comment.id} className="text-sm">
-                <span className="font-semibold text-gray-900 mr-2">
+                <span className="font-bold text-gray-900 mr-2">
                   {comment.profiles?.username || 'User'}
                 </span>
                 <span className="text-gray-700">{comment.content}</span>
@@ -144,7 +137,7 @@ export default function PostCard({ post }) {
             {commentCount > 2 && (
               <button 
                 onClick={() => setShowComments(true)}
-                className="text-sm text-gray-500 hover:text-gray-700 mt-1 font-medium"
+                className="text-sm text-gray-500 hover:text-gray-900 mt-1.5 font-medium transition-colors"
               >
                 View all {commentCount} comments
               </button>
@@ -154,7 +147,7 @@ export default function PostCard({ post }) {
 
         {/* Full Comments section */}
         {showComments && (
-          <div className="mt-3 pt-3 border-t border-gray-100 animate-fade-in">
+          <div className="mt-4 pt-4 border-t border-gray-100 animate-fade-in">
             <CommentSection postId={post.id} postAuthorId={post.user_id} />
           </div>
         )}

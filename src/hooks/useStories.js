@@ -6,7 +6,7 @@ export function useStories() {
   const { user } = useAuth()
 
   return useQuery({
-    queryKey: ['stories'],
+    queryKey: ['stories', user?.id],
     queryFn: async () => {
       const now = new Date().toISOString()
       const { data, error } = await supabase
@@ -15,7 +15,42 @@ export function useStories() {
         .gt('expires_at', now)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data ?? []
+
+      if (!user) return data ?? []
+
+      const { data: viewsData } = await supabase
+        .from('story_views')
+        .select('story_id')
+        .eq('user_id', user.id)
+
+      const viewedIds = new Set(viewsData?.map(v => v.story_id) || [])
+
+      return (data ?? []).map(story => ({
+        ...story,
+        viewed: viewedIds.has(story.id)
+      }))
+    },
+    enabled: !!user,
+  })
+}
+
+export function useMarkStoryViewed() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: async (storyId) => {
+      if (!user) return
+      const { error } = await supabase
+        .from('story_views')
+        .upsert(
+          { user_id: user.id, story_id: storyId },
+          { onConflict: 'user_id, story_id' }
+        )
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stories'] })
     },
   })
 }

@@ -2,48 +2,76 @@ import { useState, useEffect, useRef } from 'react'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import Avatar from '../ui/Avatar'
+import { useMarkStoryViewed } from '../../hooks/useStories'
 
 const STORY_DURATION = 5000 // 5 seconds per image story
 
-export default function StoryViewerModal({ stories, initialIndex, isOpen, onClose }) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex || 0)
+export default function StoryViewerModal({ groupedStories, initialGroupIndex, isOpen, onClose }) {
+  const [currentGroupIndex, setCurrentGroupIndex] = useState(initialGroupIndex || 0)
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0)
   const [progress, setProgress] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const videoRef = useRef(null)
 
+  const { mutate: markViewed } = useMarkStoryViewed()
+
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(initialIndex || 0)
+      setCurrentGroupIndex(initialGroupIndex || 0)
+      setCurrentStoryIndex(0)
       setProgress(0)
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
       setIsPaused(false)
     }
-  }, [isOpen, initialIndex])
+  }, [isOpen, initialGroupIndex])
+
+  const currentGroup = groupedStories?.[currentGroupIndex]
+  const currentStory = currentGroup?.stories?.[currentStoryIndex]
+
+  // Notice when story becomes active on screen to mark as viewed
+  useEffect(() => {
+    if (isOpen && currentStory && !currentStory.viewed) {
+      markViewed(currentStory.id)
+    }
+  }, [isOpen, currentStory, markViewed])
 
   const handleNext = () => {
-    if (currentIndex < stories.length - 1) {
-      setCurrentIndex(prev => prev + 1)
+    if (!currentGroup) return
+
+    if (currentStoryIndex < currentGroup.stories.length - 1) {
+      // Next story in current group
+      setCurrentStoryIndex(prev => prev + 1)
+      setProgress(0)
+    } else if (currentGroupIndex < groupedStories.length - 1) {
+      // Next user's group
+      setCurrentGroupIndex(prev => prev + 1)
+      setCurrentStoryIndex(0)
       setProgress(0)
     } else {
+      // Finished all
       onClose()
     }
   }
 
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1)
+    if (currentStoryIndex > 0) {
+      // Previous story in current group
+      setCurrentStoryIndex(prev => prev - 1)
+      setProgress(0)
+    } else if (currentGroupIndex > 0) {
+      // Previous user's last story
+      const prevGroup = groupedStories[currentGroupIndex - 1]
+      setCurrentGroupIndex(prev => prev - 1)
+      setCurrentStoryIndex(prevGroup.stories.length - 1)
       setProgress(0)
     }
   }
 
   // Auto progression mechanism
   useEffect(() => {
-    if (!isOpen || isPaused) return
-
-    const currentStory = stories[currentIndex]
-    if (!currentStory) return
+    if (!isOpen || isPaused || !currentStory) return
 
     const isVideo = currentStory.image_url?.match(/\.(mp4|webm|ogg)$/i)
     
@@ -66,11 +94,10 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
       return () => clearInterval(timer)
     } else {
       // For videos, progress is bound to the video's timeupdate event
-      // We don't use the interval here
       return () => {}
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, isOpen, isPaused, stories])
+  }, [currentGroupIndex, currentStoryIndex, isOpen, isPaused, currentStory])
 
   // Handle Video time updates
   const handleVideoTimeUpdate = () => {
@@ -82,16 +109,15 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
     }
   }
 
-  if (!isOpen || stories.length === 0) return null
+  if (!isOpen || !groupedStories || groupedStories.length === 0) return null
 
-  const story = stories[currentIndex]
-  if (!story) {
+  if (!currentGroup || !currentStory) {
     onClose()
     return null
   }
 
-  const profile = story.profiles
-  const isVideo = story.image_url?.match(/\.(mp4|webm|ogg)$/i)
+  const profile = currentGroup.profile
+  const isVideo = currentStory.image_url?.match(/\.(mp4|webm|ogg)$/i)
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex items-center justify-center animate-fade-in">
@@ -104,12 +130,12 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
         
         {/* Progress Bars */}
         <div className="absolute top-0 left-0 right-0 z-20 flex gap-1 p-2 pt-4 bg-gradient-to-b from-black/60 to-transparent">
-          {stories.map((_, idx) => (
+          {currentGroup.stories.map((_, idx) => (
             <div key={idx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-white transition-all duration-75 ease-linear"
                 style={{
-                  width: idx < currentIndex ? '100%' : idx === currentIndex ? `${progress}%` : '0%'
+                  width: idx < currentStoryIndex ? '100%' : idx === currentStoryIndex ? `${progress}%` : '0%'
                 }}
               />
             </div>
@@ -124,7 +150,7 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
               {profile?.username}
             </span>
             <span className="text-white/80 text-xs drop-shadow-md">
-              {formatDistanceToNow(new Date(story.created_at), { addSuffix: true })}
+              {formatDistanceToNow(new Date(currentStory.created_at), { addSuffix: true })}
             </span>
           </div>
           
@@ -144,7 +170,7 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
           {isVideo ? (
             <video
               ref={videoRef}
-              src={story.image_url}
+              src={currentStory.image_url}
               className="w-full h-full object-contain"
               autoPlay
               playsInline
@@ -153,7 +179,7 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
             />
           ) : (
             <img 
-              src={story.image_url} 
+              src={currentStory.image_url} 
               alt="Story" 
               className="w-full h-full object-contain" 
             />
@@ -171,7 +197,7 @@ export default function StoryViewerModal({ stories, initialIndex, isOpen, onClos
         />
         
         {/* Desktop Navigation Arrows (hidden on very small screens) */}
-        {currentIndex > 0 && (
+        {(currentGroupIndex > 0 || currentStoryIndex > 0) && (
           <button 
             onClick={(e) => { e.stopPropagation(); handlePrev(); }}
             className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm transition-colors"

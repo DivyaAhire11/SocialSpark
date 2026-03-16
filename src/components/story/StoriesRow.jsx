@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import StoryCircle from './StoryCircle'
 import AddStoryModal from './AddStoryModal'
 import StoryViewerModal from './StoryViewerModal'
@@ -10,41 +10,58 @@ export default function StoriesRow({ stories = [] }) {
   const [uploadOpen, setUploadOpen] = useState(false)
   
   const [viewerOpen, setViewerOpen] = useState(false)
-  const [viewerIndex, setViewerIndex] = useState(0)
+  const [viewerGroupIndex, setViewerGroupIndex] = useState(0)
+
+  // Group stories by user and sort them
+  const groupedStories = useMemo(() => {
+    if (!stories || stories.length === 0) return []
+
+    const groupsMap = new Map()
+    
+    stories.forEach(story => {
+      if (!groupsMap.has(story.user_id)) {
+        groupsMap.set(story.user_id, {
+          user_id: story.user_id,
+          profile: story.profiles,
+          stories: [],
+          allViewed: true,
+        })
+      }
+      const group = groupsMap.get(story.user_id)
+      group.stories.push(story)
+      if (!story.viewed) group.allViewed = false
+    })
+
+    const groups = Array.from(groupsMap.values())
+
+    return groups.sort((a, b) => {
+      // 1. Current user always first
+      if (a.user_id === user?.id) return -1
+      if (b.user_id === user?.id) return 1
+      
+      // 2. Unviewed stories before viewed stories
+      if (!a.allViewed && b.allViewed) return -1
+      if (a.allViewed && !b.allViewed) return 1
+
+      // 3. Newest first (based on most recent story in group)
+      const newestA = new Date(a.stories[0].created_at).getTime()
+      const newestB = new Date(b.stories[0].created_at).getTime()
+      return newestB - newestA
+    })
+  }, [stories, user?.id])
 
   // Determine if the current user has an active story
-  const myStories = stories.filter(s => s.user_id === user?.id)
-  const hasActiveStory = myStories.length > 0
+  const hasActiveStory = groupedStories.some(g => g.user_id === user?.id)
 
-  // The very first circle is always the "Add Story" or "Your Story" node
-  const ownStoryCircle = {
-    id: 'own',
-    profiles: {
-      id: user?.id,
-      avatar_url: profile?.avatar_url,
-      full_name: profile?.full_name,
-      username: profile?.username,
-    },
-    image_url: hasActiveStory ? myStories[0].image_url : profile?.avatar_url,
-  }
-
-  // To prevent the viewer from breaking on "own" fake node, we only pass REAL stories to the viewer.
-  // If the user clicks a friend's story circle, we open the viewer starting at that friend's index in the `stories` array.
-  
-  const handleStoryTap = (index) => {
-    setViewerIndex(index)
+  const handleGroupTap = (index) => {
+    setViewerGroupIndex(index)
     setViewerOpen(true)
   }
 
   const handleOwnTap = () => {
-    // If they have an active story, they probably want to view it.
-    // Assuming the requirement is to Add on click, we will just open Add modal,
-    // or if they have stories, we can open the viewer on their stories.
-    // For simplicity: Add story if none, open viewer if they have one.
     if (hasActiveStory) {
-      // Find where their first story is in the array
-      const sidx = stories.findIndex(s => s.user_id === user?.id)
-      handleStoryTap(sidx)
+      const idx = groupedStories.findIndex(g => g.user_id === user?.id)
+      handleGroupTap(idx)
     } else {
       setUploadOpen(true)
     }
@@ -54,15 +71,30 @@ export default function StoriesRow({ stories = [] }) {
     <>
       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
         
-        {/* Current User's Circle */}
-        <div onClick={handleOwnTap}>
-          <StoryCircle story={ownStoryCircle} isOwn={!hasActiveStory} />
-        </div>
+        {/* Current User's Circle (Only if they have NO active stories, to act as the Add button) */}
+        {!hasActiveStory && (
+          <div onClick={handleOwnTap}>
+            <StoryCircle 
+              group={{
+                user_id: user?.id,
+                profile: {
+                  id: user?.id,
+                  avatar_url: profile?.avatar_url,
+                  full_name: profile?.full_name,
+                  username: profile?.username,
+                },
+                stories: [],
+                allViewed: true
+              }} 
+              isOwn={true} 
+            />
+          </div>
+        )}
 
         {/* Real Stories from feed */}
-        {stories.map((story, i) => (
-          <div key={story.id} onClick={() => handleStoryTap(i)}>
-            <StoryCircle story={story} />
+        {groupedStories.map((group, i) => (
+          <div key={group.user_id} onClick={() => group.user_id === user?.id ? handleOwnTap() : handleGroupTap(i)}>
+            <StoryCircle group={group} isOwn={group.user_id === user?.id} />
           </div>
         ))}
       </div>
@@ -74,8 +106,8 @@ export default function StoriesRow({ stories = [] }) {
       />
 
       <StoryViewerModal 
-        stories={stories} 
-        initialIndex={viewerIndex} 
+        groupedStories={groupedStories} 
+        initialGroupIndex={viewerGroupIndex} 
         isOpen={viewerOpen} 
         onClose={() => setViewerOpen(false)} 
       />

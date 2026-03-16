@@ -11,7 +11,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import PostCreateModal from '../post/PostCreateModal'
 
 const NAV_ITEMS = [
-  { icon: Home, label: 'News Feed', path: '/' },
+  { icon: Home, label: 'Feed', path: '/' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: Film, label: 'Stories', path: '/stories' },
   { icon: Users, label: 'Friends', path: '/friends' },
@@ -45,89 +45,84 @@ export default function LeftSidebar() {
   const postCount = 0
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
 
-      {/* Profile card */}
-      <div className="card">
-        {/* Cover gradient */}
-        <div className="h-14 rounded-t-xl" style={{
-          background: 'linear-gradient(135deg, #EFF6FF 0%, #EDE9FE 100%)'
-        }} />
-        <div className="px-4 pb-4">
-          <Link to={`/profile/${user?.id}`} className="block group -mt-6 mb-3">
-            <div className="relative inline-block">
-              <div className="p-0.5 rounded-full" style={{
-                background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-                display: 'inline-block'
-              }}>
-                <div className="bg-white rounded-full p-0.5">
-                  <Avatar
-                    src={profile?.avatar_url}
-                    alt={profile?.full_name || profile?.username}
-                    size="lg"
-                  />
-                </div>
-              </div>
-              <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-            </div>
-            <div className="mt-1.5">
-              <p className="font-bold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
-                {profile?.full_name || 'Your Name'}
-              </p>
-              <p className="text-xs text-gray-500">@{profile?.username || 'username'}</p>
-            </div>
-          </Link>
+      {/* Modern Profile Card */}
+      <div className="card p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/profile/${user?.id}`)}>
+        <div className="relative mb-3 group">
+          <Avatar
+            src={profile?.avatar_url}
+            alt={profile?.full_name || profile?.username}
+            size="lg"
+            className="ring-2 ring-offset-2 ring-transparent group-hover:ring-[#8B5CF6] transition-all duration-200"
+          />
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" />
+        </div>
+        
+        <div className="text-center group">
+          <p className="font-bold text-gray-900 text-base group-hover:text-[#8B5CF6] transition-colors">
+            {profile?.full_name || 'Your Name'}
+          </p>
+          <p className="text-sm text-gray-500 mt-0.5">@{profile?.username || 'username'}</p>
+        </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-1 pt-2.5 border-t border-gray-100">
-            {[
-              { label: 'Posts', value: postCount },
-              { label: 'Followers', value: followerCount },
-              { label: 'Following', value: followingCount },
-            ].map(({ label, value }) => (
-              <div key={label} className="text-center py-0.5 group cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                <p className="font-bold text-gray-900 text-sm">{value.toLocaleString()}</p>
-                <p className="text-xs text-gray-500">{label}</p>
-              </div>
-            ))}
-          </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-2 w-full pt-4 mt-4 border-t border-gray-100">
+          {[
+            { label: 'Posts', value: postCount },
+            { label: 'Followers', value: followerCount },
+            { label: 'Following', value: followingCount },
+          ].map(({ label, value }) => (
+            <div key={label} className="text-center py-1 rounded-lg hover:bg-gray-50 transition-colors">
+              <p className="font-bold text-gray-900 text-sm">{value.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 font-medium">{label}</p>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Navigation */}
+      <nav className="card p-3 space-y-1">
+        {dynamicNavItems.map(({ icon: Icon, label, path, badge }) => {
+          const isActive = location.pathname === path
+          return (
+            <Link
+              key={path}
+              to={path}
+              className={`nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                isActive 
+                  ? 'bg-[#F3F4F6] text-[#8B5CF6]' 
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'text-[#8B5CF6]' : ''} />
+              <span className="flex-1">{label}</span>
+              {badge > 0 && (
+                <span className="badge">{badge}</span>
+              )}
+            </Link>
+          )
+        })}
+        
+        <div className="border-t border-gray-100 mt-2 pt-2">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
+            <LogOut size={20} strokeWidth={2} />
+            Sign out
+          </button>
+        </div>
+      </nav>
 
       {/* Create Post */}
       <button
         onClick={() => setShowCreate(true)}
-        className="btn-primary w-full py-2.5 text-sm"
+        className="btn-primary w-full py-3 text-sm shadow-sm"
       >
-        <PlusCircle size={16} />
+        <PlusCircle size={18} />
         Create Post
       </button>
-
-      {/* Navigation */}
-      <div className="card p-2 space-y-0.5">
-        {dynamicNavItems.map(({ icon: Icon, label, path, badge }) => (
-          <Link
-            key={path}
-            to={path}
-            className={`nav-link ${location.pathname === path ? 'active' : ''}`}
-          >
-            <Icon size={18} strokeWidth={location.pathname === path ? 2.2 : 1.7} />
-            <span className="flex-1">{label}</span>
-            {badge > 0 && (
-              <span className="badge">{badge}</span>
-            )}
-          </Link>
-        ))}
-        <div className="border-t border-gray-100 mt-1 pt-1">
-          <button
-            onClick={handleSignOut}
-            className="w-full nav-link text-gray-500 hover:bg-red-50 hover:text-red-600"
-          >
-            <LogOut size={17} strokeWidth={1.7} />
-            Sign out
-          </button>
-        </div>
-      </div>
 
       <PostCreateModal isOpen={showCreate} onClose={() => setShowCreate(false)} />
     </div>

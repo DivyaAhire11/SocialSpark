@@ -9,7 +9,7 @@ export default function PostDetailModal({ post, isOpen, onClose }) {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
-      document.body.style.overflow = 'hidden' // Prevent bg scrolling
+      document.body.style.overflow = 'hidden'
       window.addEventListener('keydown', handleEsc)
     }
     return () => {
@@ -20,22 +20,20 @@ export default function PostDetailModal({ post, isOpen, onClose }) {
 
   if (!isOpen || !post) return null
 
-  // Clicking outside the modal content closes it
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
+    if (e.target === e.currentTarget) onClose()
   }
 
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fade-in"
     >
-      <div className="relative w-full max-w-2xl max-h-full overflow-y-auto bg-white rounded-xl shadow-2xl">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors"
+          className="absolute -top-3 -right-3 z-10 w-9 h-9 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 rounded-full shadow-lg transition-colors"
         >
           <X size={18} />
         </button>
@@ -44,3 +42,4 @@ export default function PostDetailModal({ post, isOpen, onClose }) {
     </div>
   )
 }
+
