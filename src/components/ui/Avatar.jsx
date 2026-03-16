@@ -18,7 +18,7 @@ export default function Avatar({ src, alt = '', size = 'md', ring = false, class
         relative flex-shrink-0 rounded-full overflow-hidden
         flex items-center justify-center font-semibold text-white
         ${sizes[size] || sizes.md}
-        ${ring ? 'ring-2 ring-offset-2 ring-blue-400' : ''}
+        ${ring ? 'ring-2 ring-offset-2 ring-[#8B5CF6]' : ''}
         ${className}
       `}
       style={!src ? {

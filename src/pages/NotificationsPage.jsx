@@ -69,7 +69,7 @@ export default function NotificationsPage() {
     <div className="space-y-4 pb-8">
       <div className="card p-4 border-b border-gray-100 sticky top-0 z-10 bg-white/80 backdrop-blur-md">
         <h2 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-          <Bell className="text-blue-500" size={20} />
+          <Bell className="text-[#8B5CF6]" size={20} />
           Notifications
         </h2>
       </div>
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
                 key={notif.id}
                 onClick={() => handleNotificationClick(notif)}
                 className={`p-4 flex items-start gap-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  !notif.read ? 'bg-blue-50/40' : 'bg-white'
+                  !notif.read ? 'bg-purple-50/40' : 'bg-white'
                 }`}
               >
                 <div className="relative shrink-0">
@@ -114,7 +114,7 @@ export default function NotificationsPage() {
                 </div>
                 
                 {!notif.read && (
-                  <div className="w-2.5 h-2.5 shrink-0 bg-blue-500 rounded-full mt-2" />
+                  <div className="w-2.5 h-2.5 shrink-0 bg-[#8B5CF6] rounded-full mt-2" />
                 )}
               </div>
             ))}

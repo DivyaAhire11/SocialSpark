@@ -9,10 +9,10 @@ import Spinner from '../components/ui/Spinner'
 
 // Standardized User Item Component
 function UserCard({ profile, actionType }) {
-  const { isFollowing, toggleFollow, isPending } = useFollow(profile.id)
+  const { isFollowing, toggleFollow, isPending, isLoading } = useFollow(profile.id)
 
   const handleAction = () => {
-    if (Object.keys(isFollowing).length === 0) return // not loaded
+    if (isLoading) return 
     toggleFollow()
   }
 
@@ -30,17 +30,14 @@ function UserCard({ profile, actionType }) {
       <button 
         onClick={handleAction}
         disabled={isPending}
-        className={`px-4 py-1.5 min-w-[100px] text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
-          isFollowing 
-            ? 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
-            : 'bg-blue-500 text-white hover:bg-blue-600'
+        className={`px-4 py-1.5 min-w-[100px] text-xs font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-1.5 ${
+          isFollowing ? 'btn-following' : 'btn-follow'
         }`}
       >
-        {isPending ? <Spinner size="sm" className="text-current" /> : (
+        {isPending ? <Spinner size="sm" /> : (
           isFollowing ? (
             <>
-              <UserCheck size={14} className="group-hover:hidden" />
-              <UserMinus size={14} className="hidden group-hover:block" />
+              <UserCheck size={14} />
               <span>Following</span>
             </>
           ) : (
@@ -99,7 +96,7 @@ export default function FriendsPage() {
             placeholder="Search friends..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all caret-blue-500"
+            className="w-full bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400 transition-all caret-[#8B5CF6]"
           />
         </div>
       </div>
@@ -118,13 +115,13 @@ export default function FriendsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 flex items-center justify-center gap-2 ${
                 activeTab === tab.id 
-                  ? 'border-blue-500 text-blue-600' 
+                  ? 'border-[#8B5CF6] text-[#8B5CF6]' 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
               {tab.label}
               {tab.count !== null && (
-                <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-purple-100' : 'bg-gray-100'}`}>
                   {tab.count}
                 </span>
               )}

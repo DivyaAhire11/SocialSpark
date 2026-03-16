@@ -42,7 +42,10 @@ export default function SettingsPage() {
             className="w-full bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm"
           >
             <div className="flex items-center gap-3 font-medium text-gray-900">
-              <activeCategory.icon size={20} className="text-blue-600" />
+              {(() => {
+                const Icon = activeCategory.icon
+                return <Icon size={20} className="text-blue-600" />
+              })()}
               {activeCategory.label}
             </div>
             <ChevronDown size={20} className={`text-gray-500 transition-transform ${mobileMenuOpen ? 'rotate-180' : ''}`} />

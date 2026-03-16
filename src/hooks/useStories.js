@@ -63,17 +63,23 @@ export function useCreateStory() {
     mutationFn: async (imageFile) => {
       const fileExt = imageFile.name.split('.').pop()
       const fileName = `story-${user.id}-${Date.now()}.${fileExt}`
+
+      // Upload to the correct 'stories' bucket
       const { error: uploadError } = await supabase.storage
-        .from('posts')
-        .upload(fileName, imageFile)
+        .from('stories')
+        .upload(fileName, imageFile, { cacheControl: '3600', upsert: false })
       if (uploadError) throw uploadError
 
-      const { data: urlData } = supabase.storage.from('posts').getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage.from('stories').getPublicUrl(fileName)
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
       const { data, error } = await supabase
         .from('stories')
-        .insert({ user_id: user.id, image_url: urlData.publicUrl, expires_at: expiresAt })
+        .insert({
+          user_id: user.id,
+          image_url: urlData.publicUrl,
+          expires_at: expiresAt,
+        })
         .select()
         .single()
       if (error) throw error
@@ -84,3 +90,4 @@ export function useCreateStory() {
     },
   })
 }
+

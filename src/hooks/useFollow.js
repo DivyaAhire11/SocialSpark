@@ -6,7 +6,7 @@ export function useFollow(targetUserId) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
-  const { data: followStatus } = useQuery({
+  const { data: followStatus, isLoading: isQueryLoading } = useQuery({
     queryKey: ['follow', user?.id, targetUserId],
     queryFn: async () => {
       if (!user || !targetUserId || user.id === targetUserId) return false
@@ -56,7 +56,12 @@ export function useFollow(targetUserId) {
     },
   })
 
-  return { isFollowing: followStatus ?? false, toggleFollow: toggle.mutate, isPending: toggle.isPending }
+  return { 
+    isFollowing: followStatus ?? false, 
+    toggleFollow: toggle.mutate, 
+    isPending: toggle.isPending,
+    isLoading: isQueryLoading
+  }
 }
 
 export function useFollowCounts(userId) {
