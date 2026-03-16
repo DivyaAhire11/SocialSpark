@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
 
@@ -138,6 +138,33 @@ export function useCreatePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
     },
+  })
+}
+
+export function usePost(postId) {
+  return useQuery({
+    queryKey: ['posts', 'single', postId],
+    queryFn: async () => {
+      if (!postId) return null
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles:user_id (id, username, full_name, avatar_url),
+          likes (id, user_id),
+          comments (id, content, created_at, profiles:user_id (id, username, avatar_url))
+        `)
+        .eq('id', postId)
+        .single()
+      if (error) throw error
+      
+      if (data?.comments) {
+        data.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      }
+      
+      return data
+    },
+    enabled: !!postId,
   })
 }
 

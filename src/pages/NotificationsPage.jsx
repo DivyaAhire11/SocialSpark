@@ -1,17 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Heart, MessageCircle, UserPlus, Bell } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNotifications } from '../hooks/useNotifications'
 import Avatar from '../components/ui/Avatar'
 import Spinner from '../components/ui/Spinner'
+import PostDetailModal from '../components/post/PostDetailModal'
+import { usePost } from '../hooks/usePosts'
 
 export default function NotificationsPage() {
   const { notifications, isLoading, markAsRead, unreadCount } = useNotifications()
+  const [selectedPostId, setSelectedPostId] = useState(null)
+  const { data: selectedPost } = usePost(selectedPostId)
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Automatically mark notifications as read after 2 seconds of viewing the page
     if (unreadCount > 0) {
       const timer = setTimeout(() => {
         markAsRead()
@@ -21,11 +24,11 @@ export default function NotificationsPage() {
   }, [unreadCount, markAsRead])
 
   const handleNotificationClick = (notif) => {
-    // If it's a follow, navigate to the follower's profile.
-    // If it's a like/comment, they ultimately belong to YOUR posts, 
-    // so navigating to your own profile shows your posts, OR we can route to whoever acted.
-    // For simplicity, always route to the profile of the person who committed the action.
-    navigate(`/profile/${notif.actor.id}`)
+    if (notif.type === 'follow') {
+      navigate(`/profile/${notif.actor.id}`)
+    } else if (notif.post_id) {
+      setSelectedPostId(notif.post_id)
+    }
   }
 
   const renderIcon = (type) => {
@@ -94,7 +97,7 @@ export default function NotificationsPage() {
                 key={notif.id}
                 onClick={() => handleNotificationClick(notif)}
                 className={`p-4 flex items-start gap-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  !notif.read ? 'bg-purple-50/40' : 'bg-white'
+                  !notif.is_read ? 'bg-purple-50/40' : 'bg-white'
                 }`}
               >
                 <div className="relative shrink-0">
@@ -113,7 +116,7 @@ export default function NotificationsPage() {
                   </p>
                 </div>
                 
-                {!notif.read && (
+                {!notif.is_read && (
                   <div className="w-2.5 h-2.5 shrink-0 bg-[#8B5CF6] rounded-full mt-2" />
                 )}
               </div>
@@ -121,6 +124,15 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
+
+      {/* Post Modal for like/comment notifications */}
+      {selectedPost && (
+        <PostDetailModal
+          post={selectedPost}
+          isOpen={!!selectedPost}
+          onClose={() => setSelectedPostId(null)}
+        />
+      )}
     </div>
   )
 }

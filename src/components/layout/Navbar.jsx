@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, Bell, MessageCircle, Plus } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useNotifications } from '../../hooks/useNotifications'
 import Avatar from '../ui/Avatar'
 import PostCreateModal from '../post/PostCreateModal'
 
 export default function Navbar() {
   const { user, profile } = useAuth()
+  const { unreadCount } = useNotifications()
   const [showCreate, setShowCreate] = useState(false)
 
   return (
@@ -56,10 +58,17 @@ export default function Navbar() {
               </button>
 
               {/* Notification icon */}
-              <button className="relative w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-[#8B5CF6] hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95">
+              <Link 
+                to="/notifications"
+                className="relative w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-[#8B5CF6] hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95"
+              >
                 <Bell size={22} strokeWidth={2} />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-              </button>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white px-0.5">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Avatar Dropdown Area */}
               <Link to={`/profile/${user?.id}`} className="ml-2">

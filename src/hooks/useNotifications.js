@@ -26,18 +26,18 @@ export function useNotifications() {
     enabled: !!user,
   })
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter(n => !n.is_read).length
 
   const markAsRead = useMutation({
     mutationFn: async () => {
       if (!user) return
       
-      const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
+      const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id)
       if (unreadIds.length === 0) return
 
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .in('id', unreadIds)
 
       if (error) throw error
